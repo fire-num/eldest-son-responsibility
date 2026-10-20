@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="《长子担当——沈阳装备制造业全国第一的数字化展示设计》可交互原型：机床、国徽、航空、三线建设四大板块，追溯沈阳装备制造业的全国第一。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2315171b'/%3E%3Ctext x='32' y='44' font-size='28' font-weight='900' fill='%23FF6C0A' text-anchor='middle' font-family='Arial'%3ESY%3C/text%3E%3C/svg%3E">
+<title>长子担当 · 沈阳装备制造业全国第一 · 数字化展示</title>
+<style>
+:root{
+  --bg:#15171b; --panel:rgba(255,255,255,.055); --panel2:rgba(255,255,255,.09);
+  --line:rgba(255,255,255,.15); --line2:rgba(255,255,255,.25);
+  --orange:#FF6C0A; --blue:#004A9E; --white:#fff; --grey:#bfbfbf; --dark:#1d1f25;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px;border-radius:4px;}
+html,body{width:100%;height:100%;background:#0c0d10;overflow:hidden;font-family:"PingFang SC","Microsoft YaHei","微软雅黑",sans-serif;color:var(--white);}
+#stage{width:1920px;height:1080px;position:fixed;top:0;left:0;transform-origin:top left;background:var(--bg);}
+/* ============ 通用 ============ */
+#screen{position:absolute;inset:0;}
+.screen{position:absolute;inset:0;display:none;overflow:hidden;}
+.screen::after{content:"";position:absolute;inset:0;background:url(images/bg_metal.jpg) center/cover;opacity:.08;pointer-events:none;}
+#screen-cover::after{display:none;}
+.screen.active{display:block;animation:in .45s ease both;}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;z-index:1;}
+.scroll::-webkit-scrollbar{width:6px}
+.scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:3px}
+.pad{padding:170px 90px 60px;}
+.screen:has(.hintbar) .pad{padding-bottom:150px;}
+h1.big{font-size:60px;font-weight:800;letter-spacing:2px;}
+h2.sub{font-size:24px;color:var(--grey);font-weight:400;margin-top:10px;}
+.org{color:var(--orange);}
+.blue{color:#5b8dd9;}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 44px;background:var(--orange);color:#fff;font-size:24px;font-weight:700;border-radius:8px;cursor:pointer;border:none;letter-spacing:4px;transition:.25s;box-shadow:0 6px 22px rgba(255,108,10,.35);}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(255,108,10,.5);}
+.btn:active{transform:translateY(0) scale(.97);}
+.btn.ghost{background:transparent;border:2px solid var(--line2);color:#fff;box-shadow:none;letter-spacing:2px;}
+.btn.ghost:hover{border-color:var(--orange);color:var(--orange);}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;transition:.3s;}
+.card:hover{background:var(--panel2);border-color:rgba(255,108,10,.6);transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.45);}
+.tag{display:inline-block;padding:3px 14px;border-radius:20px;font-size:15px;background:rgba(255,108,10,.16);color:var(--orange);border:1px solid rgba(255,108,10,.4);}
+.sec-title{font-size:34px;font-weight:800;margin:26px 0 18px;display:flex;align-items:center;gap:14px;}
+.sec-title::before{content:"";width:8px;height:30px;background:var(--orange);border-radius:2px;display:inline-block;}
+.hintbar{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:rgba(20,22,28,.88);border:1px solid var(--line2);color:var(--grey);font-size:16px;padding:9px 26px;border-radius:30px;letter-spacing:2px;z-index:5;backdrop-filter:blur(6px);white-space:nowrap;}
+.hintbar b{color:var(--orange);font-weight:600;}
+.srcnote{margin-top:34px;padding:14px 20px;font-size:14px;color:#9aa3ad;border-top:1px solid var(--line);line-height:1.8;letter-spacing:.5px;}
+/* ============ 顶栏 ============ */
+#header{position:absolute;top:0;left:0;right:0;z-index:50;display:none;background:linear-gradient(180deg,rgba(15,17,21,.97),rgba(15,17,21,.88) 72%,rgba(15,17,21,.55));padding:12px 40px 0;}
+#header.show{display:block;}
+.h-row1{display:flex;align-items:center;gap:14px;}
+.h-logo{display:flex;align-items:baseline;cursor:pointer;user-select:none;transition:.2s;}
+.h-logo:hover .logo-txt{color:#fff;}
+.logo-sy{font-size:56px;font-weight:900;color:var(--orange);letter-spacing:0;line-height:1;}
+.logo-no1{font-size:24px;font-weight:800;color:var(--orange);margin-left:-4px;margin-top:18px;}
+.logo-txt{font-size:28px;font-weight:800;color:var(--orange);letter-spacing:2px;transition:.2s;}
+.h-search{flex:1;display:flex;justify-content:flex-end;align-items:center;gap:8px;}
+.h-search input{width:300px;background:rgba(255,255,255,.08);border:1px solid var(--line2);border-radius:6px;color:#fff;font-size:18px;padding:8px 16px;outline:none;transition:.25s;}
+.h-search input:focus{border-color:var(--orange);background:rgba(255,255,255,.12);}
+.h-search .cn{font-size:16px;color:var(--grey);padding:6px 12px;border:1px solid var(--line2);border-radius:6px;}
+.h-clock{font-size:18px;color:#fff;letter-spacing:2px;min-width:110px;text-align:center;font-variant-numeric:tabular-nums;}
+.h-row2{display:flex;align-items:center;margin-top:6px;padding-bottom:10px;position:relative;}
+.h-back{font-size:22px;color:#fff;padding:6px 20px 6px 8px;cursor:pointer;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line2);margin-right:26px;transition:.2s;user-select:none;}
+.h-back:hover{color:var(--orange);}
+.h-back.off{opacity:0;pointer-events:none;}
+.h-tabs{display:flex;gap:6px;flex:1;justify-content:flex-end;}
+.h-tab{font-size:24px;color:#fff;padding:8px 26px;cursor:pointer;border-radius:6px;transition:.2s;position:relative;user-select:none;letter-spacing:2px;}
+.h-tab:hover{background:rgba(255,255,255,.08);}
+.h-tab.active{color:var(--orange);font-weight:800;font-size:27px;background:rgba(255,108,10,.1);}
+.h-tab.active::after{content:"";position:absolute;left:26%;right:26%;bottom:2px;height:3px;background:var(--orange);border-radius:2px;}
+.h-crumb{font-size:16px;color:var(--grey);margin-left:20px;white-space:nowrap;}
+.h-crumb .cur{color:var(--orange);}
+/* 搜索下拉 */
+#searchDrop{position:absolute;top:78px;right:40px;width:420px;background:#1d2026;border:1px solid var(--line2);border-radius:10px;display:none;z-index:60;max-height:480px;overflow-y:auto;box-shadow:0 16px 40px rgba(0,0,0,.5);}
+#searchDrop .sd-item{padding:12px 18px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:.15s;}
+#searchDrop .sd-item:hover{background:rgba(255,108,10,.12);}
+#searchDrop .sd-item b{color:var(--orange);font-weight:700;}
+#searchDrop .sd-item>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#searchDrop .sd-k{color:var(--grey);font-size:13px;margin-left:14px;flex:0 0 auto;}
+/* ============ 封面 ============ */
+#screen-cover{background:#000;}
+#screen-cover .bgimg{position:absolute;inset:0;background:url(images/cover_museum.jpg) center/cover no-repeat;filter:brightness(.55) saturate(.95);}
+#screen-cover .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,10,14,.55),rgba(8,10,14,.35) 40%,rgba(8,10,14,.82));}
+#screen-cover .top{position:absolute;top:34px;left:54px;display:flex;align-items:center;gap:12px;z-index:3;}
+#screen-cover .top .logo-sy{font-size:52px;}
+#screen-cover .top .logo-txt{font-size:26px;}
+#screen-cover .top-search{position:absolute;top:44px;right:54px;color:#fff;font-size:20px;z-index:6;display:flex;align-items:center;gap:10px;}
+#screen-cover .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:3;padding:0 160px;text-align:center;}
+#screen-cover .logoimg{width:780px;margin-bottom:26px;filter:drop-shadow(0 6px 20px rgba(0,0,0,.6));}
+#screen-cover .title{font-size:44px;font-weight:900;letter-spacing:14px;color:#3f74c8;text-shadow:0 0 26px rgba(0,74,158,.5),1px 1px 0 #FF6C0A;margin-bottom:18px;}
+#screen-cover .intro{font-size:18px;color:#e6e6e6;line-height:2;max-width:1180px;margin-bottom:46px;opacity:.95;}
+#screen-cover .start{animation:float 2.6s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+#screen-cover .scrolltip{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);color:#bbb;font-size:15px;letter-spacing:4px;z-index:3;}
+/* ============ 首页四大板块 ============ */
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:24px;}
+.home-card{position:relative;padding:36px 42px;cursor:pointer;overflow:hidden;min-height:280px;}
+.home-card .no{position:absolute;right:26px;top:8px;font-size:104px;font-weight:900;color:rgba(255,255,255,.05);font-style:italic;}
+.home-card .ic{width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;margin-bottom:14px;background:rgba(255,108,10,.14);color:var(--orange);border:1px solid rgba(255,108,10,.35);}
+.home-card:nth-child(2) .ic{background:rgba(0,74,158,.3);color:#6ea4e8;border-color:rgba(0,74,158,.7);}
+.home-card:nth-child(3) .ic{background:rgba(255,255,255,.08);color:#dfe6f0;border-color:var(--line2);}
+.home-card:nth-child(4) .ic{background:rgba(120,190,120,.14);color:#8fce8f;border-color:rgba(120,190,120,.4);}
+.home-card h3{font-size:32px;font-weight:800;letter-spacing:3px;}
+.home-card p{font-size:16px;color:var(--grey);line-height:1.7;margin-top:8px;}
+.home-card .more{margin-top:16px;font-size:16px;color:var(--orange);letter-spacing:2px;}
+.home-hero{margin-top:24px;padding:18px 44px;display:flex;align-items:center;gap:30px;background:linear-gradient(90deg,rgba(0,74,158,.25),transparent);border:1px solid rgba(0,74,158,.5);border-radius:12px;}
+.home-hero .nums{display:flex;gap:40px;flex:1;}
+.home-hero .num b{font-size:32px;color:var(--orange);display:block;}
+.home-hero .num span{font-size:14px;color:var(--grey);}
+/* ============ 机床之乡 ============ */
+.jc-hero{display:flex;gap:44px;align-items:stretch;margin-top:30px;}
+.jc-hero .ph{flex:0 0 640px;border-radius:12px;overflow:hidden;position:relative;border:1px solid var(--line);}
+.jc-hero .ph img{width:100%;height:100%;object-fit:cover;filter:saturate(.9);}
+.jc-hero .ph .ph-tag{position:absolute;left:0;bottom:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.75));padding:30px 24px 16px;font-size:16px;color:#eee;}
+.jc-miles{flex:1;display:flex;flex-direction:column;gap:12px;}
+.jc-mile{display:flex;gap:16px;align-items:flex-start;padding:13px 18px;background:var(--panel);border:1px solid var(--line);border-radius:10px;transition:.25s;cursor:pointer;}
+.jc-mile:hover{border-color:var(--orange);background:var(--panel2);}
+.jc-mile .yr{font-size:20px;font-weight:800;color:var(--orange);min-width:74px;}
+.jc-mile .tx{font-size:15.5px;color:#ddd;line-height:1.65;}
+.jc-mile .tx b{color:#fff;}
+.jc-foot{margin-top:36px;text-align:center;}
+/* ============ 万械之基画廊 ============ */
+.gal-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:26px;}
+.gal-axis{display:flex;align-items:center;gap:0;margin:8px 0 26px;}
+.gal-axis .ax{flex:1;height:3px;background:linear-gradient(90deg,var(--blue),var(--orange));position:relative;}
+.gal-axis .ax::before{content:"";position:absolute;left:0;top:-5px;width:13px;height:13px;border-radius:50%;background:var(--blue);}
+.gal-axis .ax::after{content:"";position:absolute;right:0;top:-5px;width:13px;height:13px;border-radius:50%;background:var(--orange);box-shadow:0 0 12px rgba(255,108,10,.8);}
+.gal-axis .a-label{font-size:15px;color:var(--grey);padding:0 14px;white-space:nowrap;}
+.gal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:22px;}
+.gal-card{cursor:pointer;overflow:hidden;background:var(--panel);border:1px solid var(--line);border-radius:10px;transition:.3s;}
+.gal-card:hover{transform:translateY(-6px);border-color:var(--orange);box-shadow:0 14px 34px rgba(0,0,0,.5);}
+.gal-card .gimg{height:180px;overflow:hidden;position:relative;background:#111;}
+.gal-card .gimg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(10,12,16,.55));pointer-events:none;}
+.gal-card .gimg img{width:100%;height:100%;object-fit:cover;transition:.5s;}
+.gal-card:hover .gimg img{transform:scale(1.08);}
+.gal-card .gimg .gyr{position:absolute;left:0;top:0;background:var(--orange);color:#fff;font-size:17px;font-weight:800;padding:6px 16px;border-bottom-right-radius:10px;z-index:1;}
+.gal-card .gtx{padding:14px 16px;}
+.gal-card .gtx b{font-size:18px;letter-spacing:1px;}
+.gal-card .gtx span{display:block;font-size:14px;color:var(--grey);margin-top:5px;}
+/* ============ 详情页 ============ */
+.detail{display:flex;gap:50px;align-items:flex-start;}
+.detail .dimg{flex:0 0 680px;border-radius:12px;overflow:hidden;border:1px solid var(--line);position:sticky;top:20px;background:#0f1115;}
+.detail .dimg img{width:100%;display:block;}
+.m-nav{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:12px;}
+.m-nav .mn-btn{flex:1;text-align:center;padding:10px 0;border:1px solid var(--line2);border-radius:8px;color:#fff;font-size:17px;letter-spacing:2px;cursor:pointer;transition:.2s;background:rgba(255,255,255,.04);user-select:none;}
+.m-nav .mn-btn:hover{border-color:var(--orange);color:var(--orange);background:rgba(255,108,10,.1);}
+.m-nav .mn-info{flex:0 0 auto;padding:0 10px;font-size:15px;color:var(--grey);white-space:nowrap;}
+.detail .dinfo{flex:1;}
+.detail .dinfo .dtitle{font-size:44px;font-weight:900;letter-spacing:2px;}
+.detail .dinfo .dsub{font-size:22px;color:var(--orange);margin-top:6px;font-weight:700;}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:10px 18px;margin:26px 0;padding:20px 24px;background:var(--panel);border:1px solid var(--line);border-radius:10px;}
+.kv .k{color:var(--orange);font-weight:700;font-size:17px;}
+.kv .v{color:#eee;font-size:17px;line-height:1.7;}
+.para{font-size:17px;color:#e2e2e2;line-height:2.05;}
+.para.mt{margin-top:22px;}
+/* ============ 战机谱系 ============ */
+.fg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:34px;}
+.fg-card{position:relative;cursor:pointer;overflow:hidden;border-radius:12px;background:var(--panel);border:1px solid var(--line);min-height:360px;transition:.3s;}
+.fg-card:hover{border-color:var(--orange);transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.5);}
+.fg-card .fimg{height:250px;overflow:hidden;background:#0f1115;position:relative;}
+.fg-card .fimg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 42%,rgba(10,12,16,.58));pointer-events:none;}
+.fg-card .fimg img{width:100%;height:100%;object-fit:cover;transition:.5s;}
+.fg-card:hover .fimg img{transform:scale(1.07);}
+.fg-card .fbody{padding:18px 22px 22px;}
+.fg-card .fbody .ft{font-size:21px;font-weight:800;letter-spacing:1px;}
+.fg-card .fbody .fn{margin-top:6px;font-size:15px;color:var(--orange);}
+.fg-card .fbody .fe{font-size:14px;color:var(--grey);margin-top:4px;padding-right:108px;line-height:1.6;}
+.fg-card .fbody .fgo{position:absolute;right:18px;bottom:18px;font-size:14px;color:var(--grey);letter-spacing:2px;transition:.2s;}
+.fg-card:hover .fgo{color:var(--orange);}
+/* 战斗机详情tabs */
+.ftabs{display:flex;gap:4px;margin:26px 0 8px;border-bottom:2px solid var(--line);}
+.ftab{padding:12px 34px;font-size:20px;color:var(--grey);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;letter-spacing:2px;}
+.ftab:hover{color:#fff;}
+.ftab.active{color:var(--orange);border-bottom-color:var(--orange);font-weight:800;}
+.fcontent{min-height:300px;padding:10px 0;}
+.fcontent .f-row{display:flex;gap:34px;align-items:flex-start;}
+.fcontent .f-row .f-photo{flex:0 0 460px;border-radius:10px;overflow:hidden;border:1px solid var(--line);}
+.fcontent .f-row .f-photo img{width:100%;display:block;}
+.fcontent .f-row .f-photo.zoom img{transform:scale(1.9);transform-origin:center;}
+.fcontent .f-row .f-txt{flex:1;}
+.engine-note{margin-top:18px;padding:16px 22px;background:rgba(0,74,158,.12);border:1px solid rgba(0,74,158,.5);border-radius:10px;font-size:16px;color:#cdd9ec;}
+.engine-note img{width:74%!important;display:block;margin:14px auto 0;border-radius:8px;}
+.engine-spec{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;}
+.engine-spec .es{background:rgba(255,255,255,.05);border:1px solid var(--line2);border-radius:8px;padding:10px 12px;text-align:center;}
+.engine-spec .es .k{font-size:13px;color:var(--grey);}
+.engine-spec .es .v{font-size:17px;font-weight:800;color:#fff;margin-top:4px;}
+.spec-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:15px;}
+.spec-table td{border:1px solid var(--line2);padding:9px 12px;color:#cdd9ec;}
+.spec-table td:first-child{color:var(--grey);width:110px;background:rgba(255,255,255,.03);font-weight:600;}
+.chart-title{font-size:16px;font-weight:700;color:#fff;margin:26px 0 4px;display:flex;align-items:center;gap:8px;}
+.chart-title::before{content:"";width:4px;height:18px;background:var(--orange);border-radius:2px;}
+.chart-sub{font-size:13px;color:var(--grey);margin-bottom:10px;}
+.radar-wrap{background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:10px;padding:14px;display:flex;justify-content:center;}
+.radar-wrap svg{width:100%;max-width:620px;height:auto;}
+.bar-wrap{background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:10px;padding:16px 18px;}
+.bar-wrap svg{width:100%;height:auto;display:block;}
+/* ===== V5：相关信息（Web71 布局）+ 战机左右切换 ===== */
+.f-info{display:flex;gap:42px;align-items:flex-start;}
+.f-info .f-photo{flex:0 0 470px;border-radius:10px;overflow:hidden;border:1px solid var(--line);}
+.f-info .f-photo img{width:100%;display:block;}
+.f-info .f-photo.zoom img{transform:scale(1.9);transform-origin:center;}
+.f-info .f-cap{font-size:24px;font-weight:800;color:#fff;text-align:center;padding:14px 10px 8px;background:rgba(0,0,0,.25);letter-spacing:2px;}
+.f-info .f-txt{flex:1;min-width:0;}
+.f-info .f-paras .para{margin-bottom:16px;}
+.f-info .f-paras .para+.para{padding-top:14px;border-top:1px dashed rgba(205,217,236,.14);}
+.f-param{width:100%;}
+.f-param .para{max-width:960px;}
+.f-arrow{position:fixed;top:50%;transform:translateY(-50%);width:52px;height:92px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#9fc1ef;background:rgba(0,74,158,.22);border:1px solid rgba(0,74,158,.45);border-radius:10px;cursor:pointer;z-index:60;transition:.18s;user-select:none;backdrop-filter:blur(2px);}
+.f-arrow:hover{background:rgba(0,74,158,.6);color:#fff;border-color:#ff8c33;}
+.f-arrow-l{left:12px;}
+.f-arrow-r{right:12px;}
+.f-switch{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:26px;color:var(--grey);font-size:14px;}
+.f-switch .btn{padding:9px 22px;font-size:15px;}
+.f-switch .cnt{letter-spacing:1px;}
+.dsub{font-size:15px;color:var(--orange);font-weight:600;letter-spacing:1px;}
+/* ============ 英雄 ============ */
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:34px;}
+.hero-card{display:flex;gap:26px;padding:26px;cursor:pointer;align-items:center;}
+.hero-card .hp{width:150px;height:190px;border-radius:10px;overflow:hidden;flex:0 0 auto;border:1px solid var(--line);}
+.hero-card .hp img{width:100%;height:100%;object-fit:cover;}
+.hero-card .hb h3{font-size:28px;font-weight:800;}
+.hero-card .hb .rt{color:var(--orange);font-size:16px;margin-top:6px;}
+.hero-card .hb .rc{color:var(--grey);font-size:14px;margin-top:4px;}
+.hero-card .hb .go{margin-top:12px;font-size:15px;color:#fff;letter-spacing:2px;}
+/* ============ 地图/研究所 ============ */
+.map-wrap{display:flex;gap:40px;margin-top:26px;}
+.map-net{flex:0 0 640px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:26px;position:relative;}
+.map-net svg{width:100%;height:auto;}
+.map-region{fill:rgba(255,108,10,.16);stroke:#FF6C0A;stroke-width:1.4;cursor:pointer;transition:.2s;}
+.map-region:hover,.map-region.active{fill:rgba(255,108,10,.42);}
+.map-region-label{font-size:17px;fill:#fff;cursor:pointer;font-weight:700;}
+.map-region-label:hover{fill:var(--orange);}
+.map-list{flex:1;}
+.ins-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px;}
+.ins-card{padding:20px 22px;cursor:pointer;}
+.ins-card .in-city{font-size:26px;font-weight:800;color:var(--orange);}
+.ins-card .in-name{font-size:17px;color:#fff;margin-top:4px;font-weight:700;line-height:1.5;}
+.ins-card .in-code{font-size:13px;color:var(--grey);margin-top:6px;}
+.ins-card .in-brief{font-size:14px;color:#c6c6c6;line-height:1.7;margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+/* ============ 三线建设 ============ */
+.sx-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:18px;margin:30px 0;}
+.sx-stat{text-align:center;padding:22px 10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;}
+.sx-stat b{font-size:36px;color:var(--orange);display:block;}
+.sx-stat span{font-size:14px;color:var(--grey);margin-top:6px;display:block;}
+/* ============ 实战战绩 ============ */
+.battle-list{margin-top:26px;display:flex;flex-direction:column;gap:16px;}
+.battle-item{padding:20px 26px;border-left:4px solid var(--orange);background:var(--panel);border-radius:0 10px 10px 0;font-size:16.5px;color:#e4e4e4;line-height:1.9;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
+/* ============ 原型导航侧栏 ============ */
+.float-btn{position:absolute;right:26px;bottom:26px;z-index:80;display:flex;flex-direction:column;gap:10px;}
+.float-btn .fb{width:54px;height:54px;border-radius:50%;background:rgba(30,33,40,.92);border:1px solid var(--line2);color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:.2s;backdrop-filter:blur(6px);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.float-btn .fb:hover{background:var(--orange);border-color:var(--orange);transform:translateY(-3px);}
+#iaPanel{position:absolute;right:0;top:0;bottom:0;width:520px;background:#171a20;border-left:1px solid var(--line2);z-index:90;transform:translateX(100%);transition:.35s;padding:36px 34px;overflow-y:auto;box-shadow:-20px 0 60px rgba(0,0,0,.5);}
+#iaPanel.open{transform:none;}
+#iaPanel h3{font-size:26px;font-weight:800;letter-spacing:2px;margin-bottom:6px;}
+#iaPanel .sub{color:var(--grey);font-size:14px;margin-bottom:22px;line-height:1.8;}
+.ia-tree{margin-top:8px;}
+.ia-node{border-left:2px solid var(--line2);margin-left:14px;padding-left:18px;padding-bottom:12px;position:relative;}
+.ia-node::before{content:"";position:absolute;left:-5px;top:8px;width:8px;height:8px;border-radius:50%;background:var(--orange);}
+.ia-node .n{font-size:16px;color:#fff;font-weight:700;}
+.ia-node .c{font-size:14px;color:var(--grey);margin-top:4px;line-height:1.8;}
+.ia-note{margin-top:22px;padding:16px 18px;background:rgba(255,108,10,.08);border:1px solid rgba(255,108,10,.3);border-radius:10px;font-size:14px;color:#e8c9a8;line-height:1.9;}
+/* 过渡/工具 */
+.fade-msg{position:absolute;left:50%;top:40%;transform:translateX(-50%);background:rgba(20,22,28,.95);padding:14px 40px;border-radius:40px;border:1px solid var(--orange);color:#fff;font-size:20px;letter-spacing:3px;z-index:70;display:none;animation:in .3s;}
+/* ============================================================
+   V6 冲奖升级 · 视觉母题 + 动效叙事（叠加增强，不改原有排版）
+   ============================================================ */
+:root{--blueprint:#2a6bb8;--steel:#8fa5bd;}
+/* —— 蓝图工程网格母题（叠加于金属肌理之上）—— */
+.screen::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(42,107,184,.11) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(42,107,184,.11) 1px,transparent 1px),
+    linear-gradient(rgba(42,107,184,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(42,107,184,.05) 1px,transparent 1px);
+  background-size:130px 130px,130px 130px,26px 26px,26px 26px;
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 55%,transparent 100%);
+          mask-image:radial-gradient(ellipse at center,#000 55%,transparent 100%);}
+#screen-cover::before{display:none;}
+/* —— 四角工程定位标记 —— */
+#regmarks{position:absolute;inset:0;pointer-events:none;z-index:45;}
+#regmarks i{position:absolute;width:20px;height:20px;}
+#regmarks i::before,#regmarks i::after{content:"";position:absolute;background:rgba(255,140,51,.55);}
+#regmarks i::before{left:50%;top:0;width:1.5px;height:100%;transform:translateX(-50%);}
+#regmarks i::after{top:50%;left:0;height:1.5px;width:100%;transform:translateY(-50%);}
+#regmarks .tl{left:14px;top:14px;} #regmarks .tr{right:14px;top:14px;}
+#regmarks .bl{left:14px;bottom:14px;} #regmarks .br{right:14px;bottom:14px;}
+/* —— 页面转场升级 —— */
+.screen.active{animation:screenIn .6s cubic-bezier(.22,.8,.3,1) both;}
+@keyframes screenIn{from{opacity:0;transform:translateY(20px) scale(.994);filter:blur(5px)}
+  to{opacity:1;transform:none;filter:blur(0)}}
+/* —— 开场 preloader —— */
+#preloader{position:fixed;inset:0;z-index:200;background:#0c0d10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;}
+#preloader .gear{width:96px;height:96px;animation:spin 3.2s linear infinite;}
+#preloader .pl-title{font-size:26px;font-weight:800;letter-spacing:10px;color:#fff;}
+#preloader .pl-sub{font-size:13px;letter-spacing:5px;color:var(--orange);margin-top:-16px;}
+#preloader .pl-bar{width:300px;height:3px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden;}
+#preloader .pl-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--orange));}
+#preloader .pl-skip{position:absolute;right:34px;bottom:26px;font-size:13px;color:#7a828d;letter-spacing:2px;cursor:pointer;}
+#preloader .pl-skip:hover{color:var(--orange);}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* —— 封面标题入场（preloader 结束后触发）—— */
+#screen-cover .logoimg{opacity:0;}
+#screen-cover .title{opacity:0;}
+#screen-cover .intro{opacity:0;}
+#screen-cover .start{opacity:0;}
+#screen-cover.go .logoimg{animation:fadeUp .9s .05s ease both;}
+#screen-cover.go .title{animation:fadeUp .9s .3s ease both;}
+#screen-cover.go .intro{animation:fadeUp 1s .55s ease both;}
+#screen-cover.go .start{animation:fadeUp .8s .8s ease both;}
+#screen-cover.go .start.float{animation:fadeUp .8s .8s ease both,float 2.6s 1.7s ease-in-out infinite;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+/* 封面标题扫描光 */
+#screen-cover.go .title{position:relative;overflow:hidden;}
+#screen-cover.go .title::after{content:"";position:absolute;top:0;bottom:0;width:38%;left:-40%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);
+  animation:titleSweep 1.6s 1s ease;}
+@keyframes titleSweep{to{left:140%;}}
+/* —— 滚动揭示 —— */
+.rv{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+.rv.in{opacity:1;transform:none;}
+/* —— 卡片光扫 —— */
+.home-card{position:relative;}
+.home-card .sweep{position:absolute;top:-20%;bottom:-20%;width:42%;left:-60%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.07),transparent);
+  transform:skewX(-16deg);pointer-events:none;}
+.home-card:hover .sweep{animation:sweepGo .95s ease;}
+@keyframes sweepGo{to{left:135%;}}
+/* —— 数据动效：雷达描边 / 条形增长 —— */
+.radar-wrap polygon.data-poly{stroke-dasharray:900;stroke-dashoffset:900;fill-opacity:0;}
+.radar-wrap.go polygon.data-poly{animation:drawLine 1.5s .2s ease forwards,fillIn .8s 1.3s ease forwards;}
+@keyframes drawLine{to{stroke-dashoffset:0}}
+@keyframes fillIn{to{fill-opacity:.55}}
+.bar-wrap rect.bar-fill{transform-box:fill-box;transform-origin:left center;transform:scaleX(0);}
+.bar-wrap.go rect.bar-fill{animation:barGrow 1.1s cubic-bezier(.22,.9,.3,1) both;}
+@keyframes barGrow{to{transform:scaleX(1)}}
+/* —— 语言切换按钮 —— */
+.h-search .cn{cursor:pointer;user-select:none;transition:.2s;}
+.h-search .cn:hover{border-color:var(--orange);color:var(--orange);}
+/* —— reduced motion 无障碍 —— */
+@media (prefers-reduced-motion:reduce){
+  #preloader{display:none!important;}
+  .screen.active,#screen-cover .logoimg,#screen-cover .title,#screen-cover .intro,#screen-cover .start{animation:none!important;opacity:1!important;}
+  .rv{opacity:1!important;transform:none!important;transition:none!important;}
+  .radar-wrap polygon.data-poly{stroke-dasharray:none!important;stroke-dashoffset:0!important;fill-opacity:.55!important;}
+  .bar-wrap rect.bar-fill{transform:none!important;}
+  #preloader .gear,#screen-cover.go .title::after{animation:none!important;}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="header">
+    <div class="h-row1">
+      <div class="h-logo" onclick="go('home')" title="返回首页">
+        <span class="logo-sy">SY</span><span class="logo-no1">NO.1</span>
+        <span class="logo-txt">沈阳装备制造业</span>
+      </div>
+      <div class="h-search">
+        <input id="searchInput" type="text" placeholder="搜索 机床 / 战机 / 研究所…" autocomplete="off">
+        <span class="cn" onclick="toggleLang()"></span>
+        <span class="h-clock" id="clock">--:--</span>
+      </div>
+    </div>
+    <div class="h-row2">
+      <div class="h-back" id="btnBack">← 返回</div>
+      <div class="h-tabs" id="hTabs"></div>
+      <div class="h-crumb" id="crumb"></div>
+    </div>
+  </div>
+  <div id="screen"></div>
+  <div id="searchDrop"></div>
+  <div class="float-btn">
+    <div class="fb" id="btnIa" title="原型信息架构">原型<br>导航</div>
+    <div class="fb" id="btnFull" title="全屏">全屏</div>
+  </div>
+  <div id="iaPanel">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h3 id="iaTitle"></h3>
+      <span style="cursor:pointer;color:var(--grey);font-size:20px;" id="iaClose">✕</span>
+    </div>
+    <div class="sub" id="iaSub"></div>
+    <div class="ia-tree" id="iaTree"></div>
+    <div class="ia-note" id="iaNote"></div>
+  </div>
+  <div id="toast" class="fade-msg"></div>
+  <div id="regmarks"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></div>
+</div>
+<div id="preloader">
+  <div style="position:relative;display:flex;align-items:center;gap:18px;">
+    <svg class="gear" viewBox="0 0 100 100"><g fill="none" stroke="#FF6C0A" stroke-width="3">
+      <circle cx="50" cy="50" r="30"/><circle cx="50" cy="50" r="9" fill="#FF6C0A" stroke="none"/>
+      <path d="M50 4v14M50 82v14M4 50h14M82 50h14M17 17l10 10M73 73l10 10M83 17L73 27M27 73l-10 10" stroke-linecap="round"/>
+    </g></svg>
+    <svg class="gear sm" viewBox="0 0 100 100" style="position:static"><g fill="none" stroke="#2a6bb8" stroke-width="5">
+      <circle cx="50" cy="50" r="30"/><circle cx="50" cy="50" r="10" fill="#2a6bb8" stroke="none"/>
+      <path d="M50 2v16M50 82v16M2 50h16M82 50h16M16 16l12 12M72 72l12 12M84 16L72 28M28 72L16 84" stroke-linecap="round"/>
+    </g></svg>
+  </div>
+  <div class="pl-title">长子担当</div>
+  <div class="pl-sub">THE ELDEST SON'S RESPONSIBILITY</div>
+  <div class="pl-bar"><i id="plBar"></i></div>
+  <div class="pl-skip" id="plSkip">跳过 SKIP →</div>
+</div>
+
+<script>
+/* ================= V6 双语核心 ================= */
+let LANG=localStorage.getItem("ida_lang")||"cn";
+const I18N={
+cn:{
+  search_ph:"搜索 机床 / 战机 / 研究所…", back:"← 返回", search:"搜索",
+  start:"开始探索", cover_tip:"— 点击「开始探索」进入 —",
+  home_h1a:"长子情怀", home_h1b:"勇于担当",
+  home_h2:"沈阳装备制造业历史中的「全国第一」 · 数字化展示",
+  enter_sec:"进入板块 →", rep_eldest:"共和国工业长子",
+  c_machines:"沈阳机床", c_guohui:"金属国徽", c_hangkong:"国防航空", c_sanxian:"三线建设",
+  hc1_t:"沈阳机床", hc1_d:"万械之基 · 新中国机床工业的起点", hc1_p:"1949年第一台车床到2001年第一台五轴车铣加工中心，沈阳机床铸就十座「第一」里程碑。",
+  hc2_t:"金属国徽", hc2_d:"第一枚金属国徽 · 沈阳铸造的国家尊严", hc2_p:"1951年5月1日，沈阳第一机器厂铸成的新中国第一枚金属国徽，悬挂上天安门城楼。",
+  hc3_t:"国防航空", hc3_d:"从歼-5到歼-35A · 沈阳托举的飞天梦想", hc3_p:"沈阳飞机设计研究所与沈飞共同托举国产战机从喷气时代迈向隐身时代。",
+  hc4_t:"三线建设", hc4_d:"共和国长子的责任与担当", hc4_p:"48家企业、23304名铁西工人奔赴西部，为国家战略布局输送工业火种。",
+  hn1:"第一台车床诞生", hn2:"第一枚金属国徽", hn3:"第一架喷气式战机", hn4:"第一代舰载机着舰", hn5:"数十项装备制造「全国第一」",
+  jc_h1:"机床之乡", jc_h2:"沈阳在机床领域创造了多个中国「第一」",
+  jc_btn:"开始探索 → 万械之基", jc_hint:"点击左侧里程碑或下方按钮，进入 万械之基 年代画廊",
+  gal_h1:"万械之基", gal_tag:"1949 — 2001 · 十台「第一」",
+  gal_note:"注：十台「第一」机床资料整理自中国工业博物馆展陈与原设计稿素材，供学习交流；具体型号与时间以官方展陈为准。",
+  gal_hint:"点击任一机床卡片，查看 型号 · 时间 · 厂家 · 意义",
+  prev:"◀ 上一台", next:"下一台 ▶", cnt_pre:"第 ", cnt_mid:" 台 / 共 ", cnt_aft:" 台",
+  kv_model:"型 号", kv_time:"时 间", kv_factory:"厂 家", hist_sig:"历史意义",
+  back_gallery:"← 返回画廊", keep_explore:"继续探索 →", china_first:"中国第一",
+  detail_hint:"「返回」回到上一屏 · 顶部页签可切换四大板块",
+  gh_h1:"第一枚金属国徽", gh_h2:"1951年5月1日 · 悬挂于天安门城楼 · 由沈阳第一机器厂铸造",
+  witness:"亲历者 · 吴嘉祜", gh_meaning:"国徽的意义",
+  gh_note:"注：国徽铸造故事整理自原设计稿素材与公开史料；1950年9月20日国徽设计方案确定、2012年吴嘉祜指导复制的国徽现悬挂于中国工业博物馆展厅，均以官方公开信息为准。",
+  gh_hint:"顶部页签切换板块 · 「返回」回到上一屏",
+  hk_h1:"国防航空事业",
+  hk_h2:"沈阳飞机设计研究所（沈阳所）作为新中国组建最早的飞机设计研究所，为新中国航空工业的发展立下了汗马功劳。沈阳所参与了从二代机到四代机、从陆基到海基、从有人到无人的航空装备研制，包括歼8、歼11B、歼15等重要型号，为中国航空工业的发展壮大刷新了纪录。",
+  map_card_t:"全国研究所分布", map_card_d:"航空气动 · 电子 · 强度", map_card_d2:"七大区域 · 沈阳为中心", map_card_d3:"从沈阳辐射全国的航空工业布局", map_card_go:"查看地图 →",
+  hero_card_t:"英雄事迹", hero_card_d:"王伟 · 罗阳", hero_card_d2:"海空卫士 / 改革先锋", hero_card_d3:"81192 请返航 · 航空报国精神", hero_card_go:"查看英雄 →",
+  hk_note:"注：战机与发动机资料整理自原设计稿素材及公开资料，供学习交流；涉及性能数据与型号细节以官方公开资料为准。",
+  hk_hint:"点击战机卡片进入 详情页 · 四页签切换信息维度",
+  tab_info:"相关信息", tab_param:"性能参数", tab_meaning:"历史意义", tab_hero:"英雄事迹",
+  prev_f:"← 上一架 · ", next_f:"下一架 · ", f_cnt1:"架 / 共 ", f_cnt2:" 架",
+  engine_heart:"动力之心：",
+  radar_t:"六维性能雷达图", radar_sub:"依据展陈设计稿《沈阳装备制造业历史中的“全国第一”》性能页签数据绘制",
+  base_t:"基本信息", bar_t:"国产发动机最大推力对比", bar_sub:"单位：kN · 数据出自展陈设计稿发动机页",
+  view_battle:"查看 歼-5 实战战绩 →",
+  hero_fallback:"从歼-5到歼-35A，从涡喷-5到涡扇-19，一代代沈阳航空人接续奋斗、航空报国。他们当中，有驾驶国产战机守卫海空的「海空卫士」王伟，有用生命托举舰载机腾飞的「改革先锋」罗阳。",
+  hero_wangwei:"王伟 · 海空卫士", hero_luoyang:"罗阳 · 改革先锋", view_full:"查看完整事迹 →",
+  fighter_hint:"切换页签查看不同维度 · 键盘 ← → 快速切换战机",
+  hero_tag:"英雄事迹 · ", hero_model:"相关型号", salute:"向英雄致敬",
+  btn_back:"← 返回", view_detail:"查看 ", view_detail2:" 详情 →",
+  battle_h1:"歼-5实战战绩", battle_h2:"第一架国产喷气式战机 · 用战功守护共和国蓝天",
+  battle_note:"注：战史条目整理自公开历史资料，供学习交流；相关战例细节与数据请以权威史料为准。",
+  battle_back:"← 返回 歼-5 详情",
+  map_h1:"研究所分布", map_h2:"沈阳三线建设与航空工业布局 · 「一所、一厂」辐射全国",
+  map_hint:"沈阳作为新中国航空工业的摇篮，以「一所、一厂」模式向全国输送人才与技术，形成了覆盖东北、华北、华东、华中、西北、西南的完整航空工业布局。点击左侧区域节点查看研究所。",
+  map_empty:"沈阳的航空工业布局还在持续延伸——华南等地的院所与基地正在建设中，敬请期待。",
+  map_note:"注：院所简介整理自航空工业公开资料，供学习交流；涉及机构沿革与代号以官方公开信息为准。",
+  map_hintbar:"点击地图区域节点 → 查看该区域研究所 → 点击研究所卡片看详情",
+  ins_city:"城市", ins_code:"代号", ins_region:"区域", ins_intro:"院所简介",
+  ins_back:"← 返回分布图", ins_sanxian:"三线建设 · 溯源 →", ins_note:"注：本页内容整理自航空工业公开资料，供学习交流；具体以官方信息为准。",
+  sx_h1:"三线建设", sx_h2:"共和国长子的责任与担当 · 1964 — 1989",
+  sx_l1:"铁西企业参与援建", sx_l2:"人员支援西部", sx_l3:"受援省市自治区", sx_l4:"受建市县", sx_l5:"受建企业", sx_l6:"代培技术人员",
+  sx_note:"注：本页数据据中共沈阳市委党史研究室（沈阳市地方志办公室）公开资料整理（沈阳发布《支援国家三线建设的重要力量》等），供学习交流；其中四一〇厂支援人员为「截至1969年」口径（1958—1976年全口径为8880人），具体数字以官方档案为准。",
+  sx_btn:"开始探索 → 研究所分布", sx_hint:"数据来自沈阳铁西工业历史档案 · 点击按钮进入全国布局图",
+  ia_title:"原型信息架构", ia_nav:"原型<br>导航", fs:"全屏", ia_sub:"《长子担当——沈阳装备制造业全国第一的数字化展示设计》可交互原型 · 1920×1080 大屏演示",
+  ia_note:"操作说明：顶部「返回」回到上一屏；四个板块页签随时切换；右上角搜索框支持关键词检索跳转；点击「原型导航」查看本信息架构。所有内容均取自 XD 设计稿与公开资料。",
+  noresult1:"未找到「", noresult2:"」相关条目", trywords:"试试：机床 / 战机 / 国徽 / 三线 / 王伟 / 1953",
+  region_inst:" 地区研究所"
+},
+en:{
+  search_ph:"Search machines / fighters / institutes…", back:"← Back", search:"Search",
+  start:"Start Exploring", cover_tip:"— Click \"Start Exploring\" to enter —",
+  home_h1a:"The Eldest Son's ", home_h1b:"Responsibility",
+  home_h2:"The \"National Firsts\" in Shenyang's Equipment Manufacturing Industry · Digital Exhibition",
+  enter_sec:"Enter Section →", rep_eldest:"The Republic's Eldest Industrial Son",
+  c_machines:"Machine Tools", c_guohui:"National Emblem", c_hangkong:"Aviation", c_sanxian:"Third Front",
+  hc1_t:"Machine Tools", hc1_d:"Foundation of All Machinery · Starting Point of New China's Machine Tool Industry", hc1_p:"From the first lathe in 1949 to the first five-axis turn-mill center in 2001, Shenyang forged ten \"first\" milestones.",
+  hc2_t:"National Emblem", hc2_d:"The First Metal National Emblem · National Dignity Cast in Shenyang", hc2_p:"On May 1, 1951, New China's first metal national emblem, cast by Shenyang No.1 Machinery Factory, was hung on the Tiananmen Gate Tower.",
+  hc3_t:"National Defense Aviation", hc3_d:"From the J-5 to the J-35A · The Flying Dream Lifted by Shenyang", hc3_p:"Shenyang Aircraft Design Institute and SAC together lifted Chinese fighters from the jet age into the stealth age.",
+  hc4_t:"Third Front Construction", hc4_d:"The Responsibility of the Republic's Eldest Son", hc4_p:"48 enterprises and 23,304 Tiexi workers went west, carrying the spark of industry for the national strategy.",
+  hn1:"First Lathe Built", hn2:"First Metal Emblem", hn3:"First Jet Fighter", hn4:"First Carrier Fighter Landing", hn5:"Dozens of Industrial \"National Firsts\"",
+  jc_h1:"Home of Machine Tools", jc_h2:"Shenyang achieved multiple national \"firsts\" in machine tools",
+  jc_btn:"Explore the Gallery →", jc_hint:"Click a milestone on the left or the button below to enter the era gallery",
+  gal_h1:"Foundation of All Machinery", gal_tag:"1949 — 2001 · Ten \"First\" Machines",
+  gal_note:"Note: The ten \"first\" machine tools are compiled from the China Industrial Museum exhibition and original design materials, for study and exchange; specific models and dates are subject to the official exhibition.",
+  gal_hint:"Click any machine card for model · date · manufacturer · significance",
+  prev:"◀ Previous", next:"Next ▶", cnt_pre:"", cnt_mid:" of ", cnt_aft:"",
+  kv_model:"Model", kv_time:"Date", kv_factory:"Manufacturer", hist_sig:"Historical Significance",
+  back_gallery:"← Back to Gallery", keep_explore:"Keep Exploring →", china_first:"China's First",
+  detail_hint:"\"Back\" returns to the previous screen · top tabs switch the four sections",
+  gh_h1:"The First Metal National Emblem", gh_h2:"May 1, 1951 · Hung on Tiananmen Gate Tower · Cast by Shenyang No.1 Machinery Factory",
+  witness:"Witness · Wu Jiahu", gh_meaning:"Significance of the Emblem",
+  gh_note:"Note: The emblem casting story is compiled from original design materials and public historical records; the design was finalized on Sept 20, 1950, and the 2012 replica guided by Wu Jiahu now hangs in the China Industrial Museum, all per official public information.",
+  gh_hint:"Top tabs switch sections · \"Back\" returns to the previous screen",
+  hk_h1:"National Defense Aviation",
+  hk_h2:"Shenyang Aircraft Design Institute, the earliest aircraft design institute established in New China, has rendered outstanding service to the nation's aviation industry — participating in the development of generations of equipment, from second- to fourth-generation aircraft, land-based to carrier-based, manned to unmanned, including the J-8, J-11B and J-15.",
+  map_card_t:"National Institute Network", map_card_d:"Aerodynamics · Electronics · Strength", map_card_d2:"Seven Regions · Centered on Shenyang", map_card_d3:"A nationwide aviation network radiating from Shenyang", map_card_go:"View Map →",
+  hero_card_t:"Heroic Deeds", hero_card_d:"Wang Wei · Luo Yang", hero_card_d2:"Sea and Sky Guardian / Reform Pioneer", hero_card_d3:"81192, please return · The spirit of serving the nation through aviation", hero_card_go:"View Heroes →",
+  hk_note:"Note: Fighter and engine materials are compiled from original design materials and public records, for study and exchange; performance data and model details are subject to official public information.",
+  hk_hint:"Click a fighter card to enter the detail page · four tabs switch information dimensions",
+  tab_info:"Overview", tab_param:"Specifications", tab_meaning:"Legacy", tab_hero:"Heroes",
+  prev_f:"← Previous · ", next_f:"Next · ", f_cnt1:" of ", f_cnt2:"",
+  engine_heart:"Powerplant: ",
+  radar_t:"Six-Dimension Performance Radar Chart", radar_sub:"Drawn from the data in the exhibition design document \"National Firsts in Shenyang's Equipment Manufacturing\"",
+  base_t:"Basic Information", bar_t:"Maximum Thrust Comparison of Domestic Engines", bar_sub:"Unit: kN · Data from the engine page of the exhibition design document",
+  view_battle:"View J-5 Combat Records →",
+  hero_fallback:"From the J-5 to the J-35A, from the WP-5 to the WS-19, generations of Shenyang aviation people have carried on the mission of serving the nation through aviation. Among them are Wang Wei, the \"Sea and Sky Guardian\" who flew a domestic fighter to defend the skies, and Luo Yang, the \"Reform Pioneer\" who gave his life to lift the carrier fighter into the sky.",
+  hero_wangwei:"Wang Wei · Sea & Sky Guardian", hero_luoyang:"Luo Yang · Reform Pioneer", view_full:"View Full Story →",
+  fighter_hint:"Switch tabs for different dimensions · keyboard ← → quickly switches fighters",
+  hero_tag:"Heroic Deeds · ", hero_model:"Related Model", salute:"Salute to Heroes",
+  btn_back:"← Back", view_detail:"View ", view_detail2:" Details →",
+  battle_h1:"J-5 Combat Records", battle_h2:"The First Domestic Jet Fighter · Guarding the Republic's Skies with Battle Merit",
+  battle_note:"Note: Combat entries are compiled from public historical records, for study and exchange; details and data are subject to authoritative historical records.",
+  battle_back:"← Back to J-5 Details",
+  map_h1:"Institute Network", map_h2:"Shenyang's Third Front Construction and Aviation Layout · \"One Institute, One Factory\" Radiating Nationwide",
+  map_hint:"As the cradle of New China's aviation industry, Shenyang sent talent and technology nationwide through the \"one institute, one factory\" model, forming a complete aviation network covering the Northeast, North, East, Central, Northwest and Southwest. Click a regional node on the left to view institutes.",
+  map_empty:"Shenyang's aviation layout continues to expand — institutes and bases in South China and other regions are under construction. Stay tuned.",
+  map_note:"Note: Institute profiles are compiled from AVIC public records, for study and exchange; institutional history and codes are subject to official public information.",
+  map_hintbar:"Click a map region → view its institutes → click an institute card for details",
+  ins_city:"City", ins_code:"Code", ins_region:"Region", ins_intro:"Institute Profile",
+  ins_back:"← Back to Map", ins_sanxian:"Third Front · Origins →", ins_note:"Note: This page is compiled from AVIC public records, for study and exchange; details are subject to official information.",
+  sx_h1:"Third Front Construction", sx_h2:"The Responsibility of the Republic's Eldest Son · 1964 — 1989",
+  sx_l1:"Tiexi Enterprises Involved", sx_l2:"Personnel Sent West", sx_l3:"Provinces & Regions Aided", sx_l4:"Cities & Counties Built", sx_l5:"Enterprises Built", sx_l6:"Trainees Trained",
+  sx_note:"Note: The data on this page are compiled from public records of the CPC Shenyang Municipal Committee Party History Research Office (Shenyang Local Chronicles Office), for study and exchange; the Liming (Factory 410) personnel figure is the \"as of 1969\" caliber (the full 1958–1976 caliber is 8,880); specific figures are subject to official archives.",
+  sx_btn:"Explore the Institute Network →", sx_hint:"Data from Shenyang Tiexi industrial historical archives · click the button for the national layout",
+  ia_title:"Prototype Information Architecture", ia_nav:"IA<br>Map", fs:"Fullscreen", ia_sub:"\"The Eldest Son's Responsibility — Digital Exhibition of Shenyang Equipment Manufacturing's National Firsts\" · interactive prototype · 1920×1080 large-screen presentation",
+  ia_note:"Instructions: \"Back\" at the top returns to the previous screen; the four section tabs are always available; the search box at top right supports keyword retrieval and navigation; click \"Prototype Nav\" for this information architecture. All content is taken from the XD design and public records.",
+  noresult1:"No entries found for \"", noresult2:"\"", trywords:"Try: lathe / fighter / emblem / third front / Wang Wei / 1953",
+  region_inst:" Region Institutes"
+}
+};
+function T(k){return (I18N[LANG]&&I18N[LANG][k]!=null)?I18N[LANG][k]:(I18N.cn[k]!=null?I18N.cn[k]:k);}
+function pick(o,cnF,enF){return LANG==="en"?(o[enF]!=null?o[enF]:o[cnF]):o[cnF];}
+const NAME_EN={"歼-5":"J-5","歼-6":"J-6","歼-8Ⅱ":"J-8II","歼-11":"J-11","歼-15":"J-15","歼-35A":"J-35A","歼击机":"Fighter"};
+const ENG_EN={"涡喷-5":"WP-5","涡喷-6":"WP-6","涡喷-13":"WP-13","涡喷-13AⅡ":"WP-13AII","涡扇-10A":"WS-10A","涡扇-10":"WS-10","涡扇-10（太行）系列":"WS-10 (Taihang) series","涡扇-10（太行）系列 · 涡扇-10A":"WS-10 (Taihang) series · WS-10A","涡扇-19":"WS-19"};
+function ne(x){return LANG==="en"?(NAME_EN[x]||x):x;}
+function ee(x){return LANG==="en"?(ENG_EN[x]||x):x;}
+const REGN_EN={"东北":"Northeast","华北":"North China","华东":"East China","华中":"Central China","西北":"Northwest","西南":"Southwest","华南":"South China"};
+function rnEn(x){return LANG==="en"?(REGN_EN[x]||x):x;}
+function unitEn(s){
+  if(LANG!=="en")return s;
+  return s.replace(/（/g," (").replace(/）/g,")")
+   .replace(/公里/g," km").replace(/毫米/g," mm")
+   .replace(/双管机炮/g," twin cannon").replace(/机炮/g," cannon")
+   .replace(/型/g," Type ").replace(/门/g," ×")
+   .replace(/英里/g," miles").replace(/米/g," m").replace(/吨/g," t").replace(/马赫/g," Mach")
+   .replace(/\s+/g," ").trim();
+}
+const AX_EN={"机炮/挂载":"Armament / Payload","最大升限":"Service Ceiling","作战半径":"Combat Radius","起飞重量":"Takeoff Weight","最大速度":"Maximum Speed","推力":"Thrust"};
+const BASEK_EN={"设计":"Designed by","生产":"Manufactured by","类型":"Type","乘员":"Crew","造价":"Unit Cost","现况":"Status"};
+const BASEV_EN={"沈阳飞机设计研究所":"Shenyang Aircraft Design Institute","沈阳飞机工业集团":"Shenyang Aircraft Corporation (SAC)","高亚音速喷气战斗机":"High-subsonic jet fighter","超音速战机":"Supersonic fighter","单座、双发、高空高速战斗机":"Single-seat, twin-engine, high-altitude high-speed fighter","空中优势战斗机、多功能战斗机":"Air-superiority / multirole fighter","舰载战斗机、多功能战斗机":"Carrier-based / multirole fighter","第五代隐形多用途战机":"Fifth-generation stealth multirole fighter","1人":"1","2人":"2","1990年退役":"Retired 1990","2006年退役":"Retired 2006","75架现役":"75 in service","1999年服役":"In service since 1999","试飞中":"In flight testing","未服役":"Not in service","¥750万":"CNY 7.5 million","¥2600万":"CNY 26 million","¥5400万":"CNY 54 million","¥2.1亿":"CNY 210 million","¥4亿":"CNY 400 million","$5400万":"USD 54 million"};
+
+/* ================= 数据 ================= */
+const IMG="images/";
+const CATS=[
+  {id:"jichuang",nameEn:"Machine Tools",name:"沈阳机床",screen:"jichuang"},
+  {id:"guohui",nameEn:"National Emblem",name:"金属国徽",screen:"guohui"},
+  {id:"hangkong",nameEn:"Aviation",name:"国防航空",screen:"hangkong"},
+  {id:"sanxian",nameEn:"Third Front",name:"三线建设",screen:"sanxian"}
+];
+const MACHINES=[
+  {id:"m1949",nameEn:"The First Lathe",subEn:"6-Foot Belt-Driven Lathe",factoryEn:"Shenyang No.1 Machine Tool Works",sigEn:"When New China was founded, China's machine tool industry was a blank sheet, and the manufacturing parameters were tightly held abroad. China's first six-foot belt-driven lathe was built in 1949 by Shenyang Machinery Factory, predecessor of Shenyang No.1 Machine Tool Works. Compared with foreign industrial technology, this lathe had a simple structure and could not be applied at scale; yet as a miracle made by the Chinese themselves it was a sound beginning for industrial development. These lathes were sold across the country, becoming the mother machines of industrial production and creating many production miracles.",year:"1949",name:"第一台车床",sub:"6尺皮带车床",factory:"沈阳第一机床厂",img:"m_1949_chechuang.jpg",time:"1949年4月",sig:"新中国成立的时候，中国机床是一片空白，苏联唯恐中国发展赶超，将制造机床的参数紧紧攥在自己手里。我国第一台六尺皮带车床是沈阳机械厂（沈一机前身）在1949年制造出来，对比国外的工业技术，这台车床结构简单无法大规模应用，但作为中国人自己制造的奇迹是工业发展一个良好的开端。这些车床被销售到全国各地，成为工业生产的母机，并创造出许多生产奇迹。"},
+  {id:"m1950",nameEn:"The First Radial Drill Press",subEn:"Radial Drill Press",factoryEn:"Zhongjie Friendship Factory",sigEn:"The radial drill is a branch of the drill press family. Its arm can rotate 360 degrees around the column and move up and down; the spindle box and gearbox are integrated and can move horizontally along the arm. It is also called the cross-arm drill. On a vertical drill the cutting tool is fixed, and centering with the workpiece must be achieved by moving the workpiece, clearly inconvenient for large, heavy workpieces. The radial drill can center by moving the tool spindle position, bringing great convenience for drilling holes on large, heavy workpieces in single-piece and small-batch production.",year:"1950",name:"第一台摇臂钻床",sub:"摇臂钻床",factory:"中捷友谊厂",img:"m_1950_yaobizuan.jpg",time:"1950年",sig:"摇臂钻是钻床家族里面的一个分支。它的摇臂可以围绕立柱360度上下升降，主轴箱和齿轮箱位于一体可以在摇臂上水平移动，它也被称作为横臂钻。在立式钻床上加工孔时，它的刀具是固定无法移动的，与工件的对中必须通过移动工件来实现，对一些大而重的工件显然是非常不方便的；而摇臂钻床能用移动刀具轴的位置来对中，这就给在单件及小批生产中，加工大而重工件上的孔带来了很大的方便。"},
+  {id:"m1953",nameEn:"The First Engine Lathe",subEn:"C620-1",factoryEn:"Shenyang No.1 Machine Tool Works",sigEn:"This was the first engine lathe produced by the Chinese themselves, resolving the urgent needs of China's industrial construction in the early days of New China and making an outstanding contribution to the nation's industry. It was therefore printed on the 1960 edition 2-yuan banknote, becoming an eternal classic across time.",year:"1953",name:"第一台普通车床",sub:"C620-1",factory:"沈阳第一机床厂",img:"m_1953_putong.jpg",time:"1953年至1955年",sig:"这是中国人自己生产制造的第一台普通车床，化解了新中国成立初期我国工业建设的燃眉之急，为新中国工业作出了杰出贡献，因此它被印在了1960年版2元人民币上，成为穿越时空的永恒经典。"},
+  {id:"m1956",nameEn:"The First Horizontal Boring and Milling Machine",subEn:"Horizontal Boring and Milling Machine",factoryEn:"Shenyang No.1 Machine Tool Works",sigEn:"China's first horizontal boring and milling machine: in 1956, Shenyang No.1 Machine Tool Works successfully developed New China's first horizontal boring and milling machine. Material from the Home of Machine Tools milestones; details are subject to the exhibition.",year:"1956",name:"第一台卧式铣镗床",sub:"卧式铣镗床",factory:"沈阳第一机床厂",img:"m_1956_woxi.jpg",time:"1956年",sig:"中国第一台卧式铣镗床：1956年，沈阳第一机床厂研制成功新中国第一台卧式铣镗床。（素材取自「机床之乡」里程碑，详细说明以展览展陈为准）"},
+  {id:"m1964",nameEn:"The First Semi-Automatic Camshaft Lathe",subEn:"CT8305",factoryEn:"Shenyang No.1 Machine Tool Works",sigEn:"China's first semi-automatic camshaft lathe: in 1964, Shenyang No.1 Machine Tool Works independently developed the semi-automatic camshaft lathe CT8305. Details are subject to the exhibition.",year:"1964",name:"第一台半自动凸轮轴车床",sub:"CT8305",factory:"沈阳第一机床厂",img:"m_1964_tulunzhou.jpg",time:"1964年",sig:"中国第一台半自动凸轮轴车床：1964年，沈阳第一机床厂自行研制成功半自动凸轮轴车床CT8305。（详细说明以展览展陈为准）"},
+  {id:"m1965",nameEn:"The First Pipe Joint Boring Machine",subEn:"Q1545",factoryEn:"Shenyang No.1 Machine Tool Works",sigEn:"China's first pipe joint boring machine: in 1965, Shenyang No.1 Machine Tool Works independently developed the pipe joint boring machine Q1545. Details are subject to the exhibition.",year:"1965",name:"第一台管接头镗孔机床",sub:"Q1545",factory:"沈阳第一机床厂",img:"m_1965_guantou.jpg",time:"1965年",sig:"中国第一台管接头镗孔机床：1965年，沈阳第一机床厂自行研制成功管接头镗孔机床Q1545。（详细说明以展览展陈为准）"},
+  {id:"m1972",nameEn:"The First CA6140",subEn:"CA6140 Engine Lathe",factoryEn:"Shenyang No.1 Machine Tool Works",sigEn:"The development of the CA6140 lathe drove innovation and progress in China's machine tool technology, laying the foundation for later, more advanced CNC machine tools. The CA6140 was also widely used in education and scientific research, providing an important tool for training professionals in machinery manufacturing and for conducting research. Its successful development marked China's independent technological breakthrough in machine tool manufacturing and reduced dependence on foreign technology.",year:"1972",name:"第一台CA6140",sub:"CA6140 卧式车床",factory:"沈阳第一机床厂",img:"m_1972_ca6140.jpg",time:"1972年",sig:"CA6140车床的研制推动了中国机床技术的创新和发展，为后续更高级数控机床的研制奠定了基础。CA6140车床也被广泛应用于教育和科研领域，为培养机械制造领域的专业人才和进行科学研究提供了重要工具。CA6140的成功研制标志着中国在机床制造领域实现了自主技术突破，减少了对外国技术的依赖。"},
+  {id:"m1973",nameEn:"The First CNC Lathe",subEn:"CSK6163",factoryEn:"Shenyang No.1 Machine Tool Works",sigEn:"The CSK6163 CNC lathe uses digital control technology to perform precise turning of metal and other hard materials through programming. During its development and use, a large number of technical personnel were trained, providing human resources for the growth of China's machine tool industry. It also marked China's entry into the CNC era.",year:"1973",name:"第一台数控车床",sub:"CSK6163",factory:"沈阳第一机床厂",img:"m_1973_shukong.jpg",time:"1973年",sig:"CSK6163数控车床利用数字化控制技术，通过编程实现对金属或其他硬质材料进行精确的车削加工。在CSK6163车床的研制和使用过程中，培养了一大批技术人才，为中国机床行业的发展提供了人力资源。同时也标志着中国机床进入了数控时代。"},
+  {id:"m1989",nameEn:"The First Flexible Machining Cell",subEn:"Flexible Machining Cell",factoryEn:"Shenyang No.1 Machine Tool Works (technology introduced from Heidemann, Germany)",sigEn:"The successful development of China's first flexible machining cell marked an important technological breakthrough in high-end CNC machine tools, reduced dependence on foreign technology and strengthened the independent innovation capacity of domestic industry. It improved manufacturing's response speed and flexibility to market changes, adapting quickly to product changes and demand, especially suited to multi-variety, small- and medium-batch production. Its introduction pushed China's manufacturing to transform and upgrade from traditional to intelligent manufacturing, laying groundwork for Industry 4.0.",year:"1989",name:"第一台柔性加工单元",sub:"柔性加工单元",factory:"沈阳第一机床厂（引进德国海德曼公司技术）",img:"m_1989_rouxing.jpg",time:"1989年",sig:"中国第一台柔性加工单元的研制成功，标志着中国在高端数控机床领域取得了重要的技术突破，减少了对外国技术的依赖，增强了国内工业的自主创新能力。柔性加工单元提高了制造业对市场变化的响应速度和灵活性，能够快速适应产品变化和市场需求，特别适合多品种、中小批量生产。柔性加工单元的引入推动了中国制造业从传统制造向智能制造的转型升级，为实现工业4.0奠定了基础。"},
+  {id:"m2001",nameEn:"The First Five-Axis Turn-Mill Machining Center",subEn:"Five-Axis Turn-Mill Machining Center",factoryEn:"Shenyang No.1 Machine Tool Works",sigEn:"China's first five-axis turn-mill machining center: in 2001, Shenyang No.1 Machine Tool Works successfully developed China's first five-axis turn-mill machining center. Details are subject to the exhibition.",year:"2001",name:"第一台五轴车铣加工中心",sub:"五轴车铣加工中心",factory:"沈阳第一机床厂",img:"m_2001_wuzhou.jpg",time:"2001年",sig:"中国第一台五轴车铣加工中心：2001年，沈阳第一机床厂研制成功中国第一台五轴车铣加工中心。（详细说明以展览现场为准）"}
+];
+const FIGHTERS=[
+  {id:"j5",capEn:"J-5 maiden flight · July 19, 1956 · Shenyang",titleEn:"China's First Jet Fighter",tagEn:"China's First Domestically Built Jet Fighter",enNoteEn:"New China's first turbojet engine · Shenyang Liming Engine Manufacturing Corporation",infoPartsEn:["Background: After the founding of New China, facing the real threat of the U.S. Air Force during the Korean War, China began work on licensed production of jet fighters. In 1951 the Ministry of Heavy Industry set up the Aviation Industry Bureau to take unified charge of aircraft maintenance. In 1953 the Aviation Industry Administration drew up the overall design assignment for expanding state-owned Shenyang Factory 112 (now AVIC Shenyang Aircraft Corporation, SAC) into a MiG-15 jet fighter factory.","On July 19, 1956, China's first domestically built jet fighter, the J-5, made its maiden flight in Shenyang. It meant New China now possessed an eagle to defend its airspace; the Chinese Air Force opened a new chapter, marking China's entry into the jet age and becoming one of the countries able to mass-produce jet fighters.","The J-5 is China's first high-subsonic jet fighter, with a single seat, single engine, nose intake and swept mid-wing layout and an all-metal structure — compact, light, with good low-altitude maneuverability. It was fitted with the WP-5 engine, with good maneuverability, firepower and survivability.","Structural points: wing sweep 45 degrees, twin-spar structure; all-metal semi-monocoque construction; compact, light, with good low-altitude maneuverability."],paramsEn:"High-subsonic jet fighter · single seat, single engine, nose intake, swept mid-wing · wing sweep 45 degrees, twin-spar structure · all-metal semi-monocoque construction · compact, light, good low-altitude maneuverability · fitted with the WP-5 engine, with good maneuverability, firepower and survivability.",meaningEn:"The successful maiden flight of the J-5 meant New China now possessed an eagle to defend its airspace, marking China's entry into the jet age and becoming one of the world's countries able to mass-produce jet fighters. The J-5 repeatedly won merit in homeland air defense — see the combat records tab.",title:"第一架 喷气式 战机",name:"歼-5",engine:"涡喷-5",en:"涡喷-5",enNote:"新中国第一种涡轮喷气发动机 · 沈阳黎明发动机制造公司",img:"fighter_j5.jpg",engineImg:"engine_wp5.jpg",tag:"中国第一架国产喷气式歼击机",
+   radar:{axes:[["机炮/挂载","1×37型 37mm机炮",1],["最大升限","16000米",16000],["作战半径","800KM",800],["起飞重量","5.3吨",5.3],["最大速度","0.93马赫（1145KM/H）",0.93],["推力","37kN",37]],max:[10,25000,2000,40,2.5,150]},
+   base:{设计:"沈阳飞机设计研究所",生产:"沈阳飞机工业集团",类型:"高亚音速喷气战斗机",乘员:"1人",造价:"¥750万",现况:"1990年退役"},
+   hero:"j5hero",
+   infoParts:[
+     "成立背景：新中国成立后，面对美国空军在朝鲜战争中的现实威胁，中国开始了仿制生产喷气式战斗机的工作。1951年，重工业部设立航空工业局，统一负责飞机的维修工作。1953年，航空工业管理局拟定了沈阳国营112厂（现为中航工业集团沈阳飞机工业公司，简称“沈飞”）扩建为米格-15喷气式飞机制造厂的总体设计任务书。",
+     "1956年7月19日，中国第一架国产喷气式歼击机——歼-5在沈阳首飞成功，意味着新中国开始拥有了保卫领空的雄鹰，中国空军翻开了历史新篇章，标志着中国航空工业跨入喷气时代，也标志着中国成为当时世界上能够成批生产喷气战斗机的国家之一。",
+     "歼-5是中国第一种高亚音速喷气战斗机，采用单座、单发、机头进气、后掠式中单翼布局，全金属结构，具有体积小、重量轻、低空机动性能好等特点。装配了“涡喷-5”型发动机，具备良好的机动性、火力和生存力。",
+     "结构要点：机翼后掠角45°，双梁结构；全金属半硬壳式构造；体积小、重量轻、低空机动性能好。"
+   ],
+   info:"成立背景：新中国成立后，面对美国空军在朝鲜战争中的现实威胁，中国开始了仿制生产喷气式战斗机的工作。1951年，重工业部设立航空工业局，统一负责飞机的维修工作。1953年，航空工业管理局拟定了沈阳国营112厂（现为中航工业集团沈阳飞机工业公司，简称「沈飞」）扩建为米格-15喷气式飞机制造厂的总体设计任务书。1956年7月19日，中国第一架国产喷气式歼击机——歼-5在沈阳首飞成功，意味着新中国开始拥有了保卫领空的雄鹰，中国空军翻开了历史新篇章，标志着中国航空工业跨入喷气时代，也标志着中国成为当时世界上能够成批生产喷气战斗机的国家之一。",
+   params:"歼-5是中国第一种高亚音速喷气战斗机。· 单座、单发、机头进气、后掠式中单翼布局 · 机翼后掠角45°，双梁结构 · 全金属半硬壳式构造 · 体积小、重量轻、低空机动性能好 · 装配「涡喷-5」型发动机，具备良好的机动性、火力和生存力。",
+   meaning:"歼-5首飞成功，意味着新中国开始拥有了保卫领空的雄鹰，标志着中国航空工业跨入喷气时代，中国成为当时世界上能够成批生产喷气战斗机的国家之一。歼-5在国土防空作战中屡建战功——实战战绩请查看战史页签。",battle:true},
+  {id:"j6",capEn:"J-6 formation · the mainstay fighter of the 1960s–1970s",titleEn:"The First Supersonic Fighter",tagEn:"Taking the Chinese Air Force from Subsonic to Supersonic",enNoteEn:"China's first supersonic aero engine · Shenyang Liming Engine Manufacturing Corporation",infoPartsEn:["The J-6 is an air-superiority fighter China licensed and developed from the Soviet MiG-19, marking the Chinese Air Force's transition from the subsonic to the supersonic age. In the 1950s the MiG-15 was the Chinese Air Force's mainstay; with the advent of supersonic fighters its performance was falling behind, so China sought a new generation of aircraft.","The coming of the supersonic age: in 1953 the U.S. Air Force YF-100 broke the sound barrier on its first flight. In 1954 the SM-9/1 prototype of the Soviet Union's first supersonic fighter, the MiG-19, made its maiden flight, marking the entry of fighters into the supersonic age.","China's needs: in the 1950s the Chinese Air Force's mainstay was the MiG-15 replaced after the Korean War. With the supersonic age dawning, subsonic fighters were clearly outclassed. To keep pace with new trends, the Chinese military closely followed Soviet fighter development and sought technology transfer.","The J-6 was the mainstay of the PLA Air Force from the 1960s through the 1970s and the most numerous type produced by China's aviation industry, with over 4,500 built — far exceeding the number of MiG-19s in the Soviet Union. It was also exported to many countries."],paramsEn:"Supersonic air-superiority fighter · two WP-6 engines (China's first supersonic aero engine) · nose intake, highly swept wings · maximum speed about Mach 1.35 · mainstay of the Chinese Air Force from the 1960s through the 1970s. Performance data per public records.",meaningEn:"The J-6 was the PLA Air Force's mainstay from the 1960s through the 1970s and the most numerous type produced by China's aviation industry, with over 4,500 built, far exceeding its Soviet prototype the MiG-19; it was also exported to many countries, marking the Chinese Air Force's transition from the subsonic to the supersonic age.",title:"第一代 超音速 战机",name:"歼-6",engine:"涡喷-6",en:"涡喷-6",enNote:"中国首型超音速航空发动机 · 沈阳黎明发动机制造公司",img:"fighter_j6.jpg",engineImg:"engine_wp6.jpg",tag:"中国空军从亚音速进入超音速时代",
+   radar:{axes:[["机炮/挂载","3门30毫米 30-1机炮",3],["最大升限","17600米",17600],["作战半径","680公里",680],["起飞重量","8.6吨",8.6],["最大速度","1.02马赫（1255KM/H）",1.02],["推力","39.9kN",39.9]],max:[10,25000,2000,40,2.5,150]},
+   base:{设计:"沈阳飞机设计研究所",生产:"沈阳飞机工业集团",类型:"超音速战机",乘员:"1人",造价:"¥2600万",现况:"2006年退役"},
+   hero:"j6hero",
+   infoParts:[
+     "歼-6战斗机是中国根据前苏联米格-19仿制和发展的制空战斗机，标志着中国空军从亚音速时代进入超音速时代。20世纪50年代，中国空军主力是米格-15，随着超音速战斗机的出现，米格-15性能已显落后，因此中国开始寻求新一代战机。",
+     "超音速时代的到来：1953年，美国空军YF-100在首次试飞中成功突破音障。1954年，苏联第一代超音速战斗机米格-19的SM-9/1原型机首飞成功，标志着战斗机进入了超音速时代。",
+     "中国空军的需求：20世纪50年代的中国空军主力是朝鲜战争后期换装的米格-15，随着超音速时代的到来，亚音速战斗机的性能已明显落后。为了跟踪新的战机发展趋势，中国军方一直关注苏联的战机发展并寻求技术引进。",
+     "歼-6是中国人民解放军空军于1960至1970年代的主力，也是中国航空工业生产装备数量最多的机型，共生产了逾4500架，远超过该型飞机于其原型的苏联的米格-19数量，该机同时出口到了许多国家。"
+   ],
+   info:"歼-6战斗机是中国根据前苏联米格-19仿制和发展的制空战斗机，标志着中国空军从亚音速时代进入超音速时代。超音速时代的到来：1953年，美国空军YF-100在首次试飞中成功突破音障；1954年，苏联第一代超音速战斗机米格-19的SM-9/1原型机首飞成功，标志着战斗机进入了超音速时代。中国空军的需求：20世纪50年代的中国空军主力是朝鲜战争后期换装的米格-15，随着超音速时代的到来，亚音速战斗机的性能已明显落后。为了跟踪新的战机发展趋势，中国军方一直关注苏联的战机发展并寻求技术引进。",
+   params:"超音速制空战斗机 · 装两台「涡喷-6」型发动机（中国第一型超音速航空发动机）· 机头进气道，大后掠角机翼 · 最大飞行速度约1.35马赫 · 1960至1970年代中国空军主力机型。（性能数据以公开资料为准）",
+   meaning:"歼-6是中国人民解放军空军于1960至1970年代的主力，也是中国航空工业生产装备数量最多的机型，共生产了逾4500架，远超过其原型苏联米格-19的数量，该机同时出口到了许多国家，标志着中国空军从亚音速时代进入超音速时代。"},
+  {id:"j8",capEn:"J-8II high-altitude, high-speed fighter · Shenyang",titleEn:"The First High-Altitude, High-Speed Fighter",tagEn:"The First Independently Designed Engine Successfully Fielded in Numbers",enNoteEn:"The first aero engine independently designed and successfully fielded in numbers · jointly developed by Shenyang Liming and Guizhou Liyang",infoPartsEn:["The J-8 series is China's first independently designed high-altitude, high-speed fighter; its development embodies the leap of Shenyang Aircraft Design Institute (Institute 601) from licensed production to independent design.","The WP-13 engine is China's first aero engine independently designed and successfully fielded in numbers, jointly developed by Shenyang Liming Engine Corporation and Guizhou Liyang Corporation, powering types such as the J-8II.","Aircraft number 81192, flown by pilot Wang Wei, was a J-8II."],paramsEn:"High-altitude, high-speed fighter · two WP-13AII engines · maximum speed about Mach 2.2 · all-weather, all-altitude combat capability · can carry multiple air-to-air missiles and cannon. Performance data per public records.",meaningEn:"The WP-13 is China's first aero engine independently designed and successfully fielded in numbers, marking the transition of Chinese aero propulsion from licensed production to independent development and providing a strong domestic heart for high-altitude, high-speed fighters. In the late 1970s and early 1980s China obtained a MiG-21MF and its P-13 engine from Egypt and planned to copy them; due to materials and process constraints, the WP-13 series was ultimately developed with reference to the WP-7 series, yielding variants such as the WP-13AII powering the J-8II.",title:"第一架 高空高速 战机",name:"歼-8Ⅱ",engine:"涡喷-13",en:"涡喷-13AⅡ",enNote:"第一款自行设计并成功批量装备的航空发动机 · 沈阳黎明与贵州黎阳联合研制",img:"fighter_j8.jpg",detailImg:"fighter_j8_cut.png",engineImg:"engine_wp13.jpg",tag:"第一款自行设计并成功批量装备的发动机",
+   radar:{axes:[["机炮/挂载","23-3型23毫米双管机炮",1],["最大升限","20500米",20500],["作战半径","800英里",800],["起飞重量","19.8吨",19.8],["最大速度","2.3马赫",2.3],["推力","65.9kN",65.9]],max:[10,25000,2000,40,2.5,150]},
+   base:{设计:"沈阳飞机设计研究所",生产:"沈阳飞机工业集团",类型:"单座、双发、高空高速战斗机",乘员:"2人",造价:"¥5400万",现况:"75架现役"},
+   engineSpec:[["引擎总长","4140mm"],["最大外径","1020mm"],["单具重量","1280kg"],["最大推力","6590daN"]],
+   hero:"wangwei",
+   infoParts:[
+     "歼-8系列是中国自主设计的第一型高空高速战斗机，其研制历程体现了沈阳飞机设计研究所（601所）从仿制走向自行设计的跨越。",
+     "涡喷-13发动机是我国第一款自行设计并且成功批量装备的航空发动机，由沈阳黎明发动机公司和贵州黎阳公司联合研制，配装歼-8Ⅱ等机型。",
+     "飞行员王伟驾驶的81192号战机，正是歼-8Ⅱ。"
+   ],
+   info:"歼-8系列是中国自主设计的第一型高空高速战斗机，其研制历程体现了沈阳飞机设计研究所（601所）从仿制走向自行设计的跨越。涡喷-13发动机是我国第一款自行设计并且成功批量装备的航空发动机，由沈阳黎明发动机公司和贵州黎阳公司联合研制，配装歼-8Ⅱ等机型。飞行员王伟驾驶的81192号战机，正是歼-8Ⅱ。",
+   params:"高空高速歼击机 · 装两台「涡喷-13AⅡ」型发动机 · 最大飞行速度约2.2马赫 · 全天候、全高度作战能力 · 可挂载多型空空导弹与航炮。（性能数据以公开资料为准）",
+   meaning:"涡喷-13是我国第一款自行设计并且成功批量装备的航空发动机，标志着中国航空动力从仿制走向自行研制，为高空高速歼击机提供了强劲的国产心脏。上世纪70年代末80年代初，我国从埃及获得了米格-21MF及配套的P-13发动机，计划加以仿制，但由于材料与工艺上的原因，最终结合涡喷7系列的特点参照研制成功了涡喷13系列发动机，先后衍生出涡喷-13AⅡ（配装歼-8Ⅱ）等型号。",
+   hero:"wangwei"},
+  {id:"j11",capEn:"J-11 heavy air-superiority fighter",titleEn:"The First Heavy Third-Generation Fighter",tagEn:"From Import to Independent Innovation, Filling the Gap in Heavy Third-Generation Fighters",enNoteEn:"China's first high-thrust turbofan engine · Shenyang Engine Design and Research Institute",infoPartsEn:["The J-11 is the domestic version of the Su-27, developed and manufactured by Shenyang Aircraft Corporation (SAC), filling the gap in China's heavy third-generation fighters.","From import to independent innovation — the rise of the J-11 series: in the 1990s China imported the Su-27 series from Russia, filling the gap in modern air force fighters and greatly lifting combat capability, but limited numbers and technological dependence also exposed problems. China therefore sought independent production, gradually mastering the Su-27's core technology through cooperation with Russia and developing the domestic J-11 series on that basis. The J-11A and J-11B marked the Chinese aviation industry's move toward autonomy.","The J-11 is a heavy fighter China manufactured in the 1990s from a Russian-imported Su-27SK production line, in response to changing international conditions and the needs of military struggle, to deal with modern local wars under high-tech conditions and the cross-strait military balance.","While retaining the Su-27's characteristics including its aerodynamic shape, SAC added Chinese domestic avionics, radar and weapon systems and the WS-10 engine, developing the J-11B and J-11BS — the aerodynamic shape is unchanged, but performance was improved and the internal structure optimized to extend service life."],paramsEn:"Heavy air-superiority fighter · two WS-10A domestic high-thrust engines · while retaining the Su-27's aerodynamic characteristics, SAC added domestic avionics, radar and weapon systems · internal structure optimized to extend service life.",meaningEn:"It filled the gap in China's heavy third-generation fighters. Even as the J-20 reaches sufficient scale, the J-11 will remain one of the Chinese Air Force's main forces for long-range air-superiority operations and seizing air dominance.",title:"第一架 重型三代 战机",name:"歼-11",engine:"涡扇-10A",en:"涡扇-10（太行）系列 · 涡扇-10A",enNote:"第一台大推力涡轮风扇发动机 · 沈阳发动机设计研究所",img:"fighter_j11.jpg",engineImg:"engine_ws10.jpg",tag:"从引进到自主创新，填补中国重型三代机空白",
+   radar:{axes:[["机炮/挂载","GSh-30-1机炮",1],["最大升限","18000米",18000],["作战半径","1,500英里",1500],["起飞重量","33吨",33],["最大速度","2.35马赫",2.35],["推力","135.39kN",135.39]],max:[10,25000,2000,40,2.5,150]},
+   base:{设计:"沈阳飞机工业集团",生产:"沈阳飞机工业集团",类型:"空中优势战斗机、多功能战斗机",乘员:"1人",造价:"¥2.1亿",现况:"1999年服役"},
+   engineSpec:[["引擎总长","4950mm"],["最大外径","1160mm"],["单具重量","1794.7kg"],["最大推力","13539daN"]],
+   hero:"luoyang",
+   infoParts:[
+     "歼-15由沈阳飞机公司（沈飞）制造，是中国自主研发的第一代舰载战斗机，也是典型的第三代战斗机，以T10K原型机为基础研制的一代国产舰载战斗机。",
+     "2012年11月23日，由中航工业沈阳飞机工业（集团）有限公司和601所负责研制的中国第一代舰载机歼-15在辽宁舰上实现着舰和舰上起飞。该机是中国第一代远程、重型、超声速、高机动性固定翼舰载多用途战斗机，可用于编队防空、夺取海上局部制空权、突击敌海上大中型水面舰船、攻击敌海军基地及实施战术侦察。",
+     "歼-15在辽宁舰首次成功起降，从这一天起，中国海上没有舰载机的时代成为历史，中国战斗机实现了从陆地向海洋的跨越。",
+     "2012年11月25日，歼-15研制现场总指挥罗阳在随歼-15完成首次着舰任务后，因积劳成疾突发疾病，因公殉职，年仅51岁。传承航空报国、勇攀高峰的“罗阳精神”，航空工业新型号、新成果不断涌现。",
+     "歼-15舰载机的成功研制，标志着中国战斗机实现了从陆基到海基的历史性跨越。"
+   ],
+   hero:"j11hero",
+   infoParts:[
+     "歼-11：是苏-27型战斗机的国产型号，由中国沈阳飞机公司（沈飞）研发制造，填补了中国重型三代机的空白。",
+     "从引进到自主创新——歼-11系列的崛起：上世纪90年代，我国从俄罗斯引进了苏-27系列战机，填补了当时空军现代化战机的空白。苏-27的引进大幅提升了我国空军的作战能力，但数量的限制和技术依赖也暴露了问题。因此，我国开始寻求自主生产，在与俄罗斯合作的基础上逐步掌握了苏-27的核心技术，并在此基础上发展出了国产歼-11系列战机。歼-11A、歼-11B战机的问世，标志着我国航空工业开始迈向自主化。",
+     "歼-11战斗机是中国在20世纪90年代为了提升空军作战能力，根据国际形势变化和军事斗争需要，从俄罗斯引进苏-27SK生产线制造的重型战斗机。这一决策是为了应对高技术条件下的现代局部战争，以及两岸军力平衡的需要。",
+     "沈飞在保留苏-27包括气动外形等特性的情况下，加上了中国国产的航电、雷达、武器系统等和涡扇-10发动机，开发了衍生机型歼-11B、歼-11BS，虽然气动外形仍然没有变化，但在性能上有所改良，并优化内部结构提高了机体寿命。"
+   ],
+   info:"歼-11是苏-27型战斗机的国产型号，由中国沈阳飞机公司（沈飞）研发制造，填补了中国重型三代机的空白。从引进到自主创新——歼11系列的崛起：上世纪90年代，我国从俄罗斯引进了苏27系列战机，填补了当时空军现代化战机的空白。苏27的引进大幅提升了我国空军的作战能力，但数量的限制和技术依赖也暴露了问题。因此，我国开始寻求自主生产。在与俄罗斯合作的基础上，逐步掌握了苏27的核心技术，并在此基础上发展出了国产歼11系列战机。歼11A、歼11B战机的问世，标志着我国航空工业开始迈向自主化，也为歼11D的诞生奠定了坚实的基础。",
+   params:"重型制空战斗机 · 装两台「涡扇-10A」型国产大推力发动机 · 沈飞在保留Su-27气动外形特性的基础上，加装国产航电、雷达与武器系统 · 优化内部结构，提高机体寿命。",
+   meaning:"填补了中国重型三代机的空白。即便歼-20战斗机已经形成了足够的规模，歼-11战斗机仍将是中国空军执行远程空优作战并夺取制空权的主要力量之一。"},
+  {id:"j15",capEn:"J-15 carrier fighter · arrested landing aboard Liaoning, 2012",titleEn:"The First Carrier-Based Fighter",tagEn:"China's First Carrier-Based Fighter · From Land to Sea",enNoteEn:"China's first high-thrust turbofan engine · Shenyang Engine Design and Research Institute",infoPartsEn:["Manufactured by Shenyang Aircraft Corporation (SAC), the J-15 is China's independently developed first-generation carrier fighter and a typical third-generation aircraft, developed from the T10K prototype.","On November 23, 2012, the J-15, developed by AVIC Shenyang Aircraft Corporation and Institute 601, achieved arrested landing and takeoff aboard the carrier Liaoning. It is China's first long-range, heavy, supersonic, highly maneuverable fixed-wing carrier multirole fighter, usable for fleet air defense, seizing local sea control, striking enemy large and medium surface ships, attacking enemy naval bases and conducting tactical reconnaissance.","With the J-15's successful takeoff and landing aboard Liaoning, the era in which China had no carrier aircraft at sea became history; Chinese fighters achieved the leap from land to ocean.","On November 25, 2012, Luo Yang, on-site commander of the J-15 program, died of illness brought on by overwork after the first carrier landing, aged only 51. Carrying forward the Luo Yang spirit of serving the nation through aviation and scaling the heights, new types and achievements of the aviation industry keep emerging.","The successful development of the J-15 marks the historic leap of Chinese fighters from land-based to sea-based."],paramsEn:"First-generation long-range, heavy, supersonic, highly maneuverable fixed-wing carrier multirole fighter · two WS-10 high-thrust turbofan engines · canard plus leading-edge root extension layout, twin-engine heavy type · capable of ski-jump takeoff and arrested landing.",meaningEn:"With the J-15's successful takeoff and landing aboard Liaoning, the era in which China had no carrier aircraft at sea became history, and Chinese fighters achieved the leap from land to ocean. Its successful development marks the historic leap of Chinese fighters from land-based to sea-based, of major strategic significance for strengthening national defense and safeguarding the nation's maritime rights and interests.",title:"第一代 舰载 战机",name:"歼-15",engine:"涡扇-10",en:"涡扇-10（太行）系列",enNote:"第一台大推力涡轮风扇发动机 · 沈阳发动机设计研究所",img:"fighter_j15.jpg",engineImg:"engine_ws10.jpg",tag:"中国第一代舰载战斗机 · 从陆基到海基",
+   radar:{axes:[["机炮/挂载","GSh-30-1机炮",1],["最大升限","20000米",20000],["作战半径","1500英里",1500],["起飞重量","32.5吨",32.5],["最大速度","2.4马赫",2.4],["推力","132kN",132]],max:[10,25000,2000,40,2.5,150]},
+   base:{设计:"沈阳飞机工业集团",生产:"沈阳飞机工业集团",类型:"舰载战斗机、多功能战斗机",乘员:"1人",造价:"¥4亿",现况:"试飞中"},
+   engineSpec:[["引擎总长","4950mm"],["最大外径","1160mm"],["单具重量","1794.7kg"],["最大推力","13539daN"]],
+   info:"由沈阳飞机公司（沈飞）制造。中国自主研发的第一代舰载战斗机，也是典型的第三代战斗机，以T10K原型机为基础研制的一代国产舰载战斗机。2012年11月23日，由中航工业沈阳飞机工业(集团)有限公司和601所负责研制的中国第一代舰载机歼-15在辽宁舰上实现着舰和舰上起飞。该机是中国第一代远程、重型、超声速、高机动性固定翼舰载多用途战斗机，可用于编队防空，夺取海上局部制空权，突击敌海上大中型水面舰船，攻击敌海军基地、港口和陆上浅纵深的重要目标以及实施战术侦察。",
+   params:"第一代远程、重型、超声速、高机动性固定翼舰载多用途战斗机 · 装两台「涡扇-10」型大推力涡扇发动机 · 鸭翼+边条翼布局，双发重型 · 具备滑跃起飞 / 阻拦着舰能力。",
+   meaning:"歼-15在辽宁舰首次成功起降，从这一天起，中国海上没有舰载机的时代成为历史，中国战斗机实现了从陆地向海洋的跨越。歼-15舰载机的成功研制，标志着中国战斗机实现了从陆基到海基的历史性跨越，对加强国防建设、维护国家海洋权益具有重大的战略意义。",
+   hero:"luoyang"},
+  {id:"j35",capEn:"J-35A new-generation stealth fighter",titleEn:"The New-Generation Stealth Fighter",tagEn:"Stealth, Informatization, Networking, Intelligence",enNoteEn:"New-generation high-thrust turbofan engine · exhibition materials subject to the physical exhibits",infoPartsEn:["The J-35A is a new-generation medium stealth multirole fighter independently developed by the Aviation Industry Corporation of China (AVIC), with integrated airframe, aerodynamic and stealth design — a single-seat, twin-engine, blended wing-body configuration with twin swept canted tails and all-moving horizontal tails. It is a force in the stealth and counter-stealth combat system, capable against air, ground and sea targets, focused on air-superiority missions while also carrying out surface strikes.","As China's new-generation stealth fighter, its novelty lies mainly in stealth, informatization, networking and intelligence.","The J-35A mainly performs the mission of seizing and maintaining air superiority, striking enemy third- and fourth-generation fighters and ground and sea air-defense forces, and intercepting enemy fighters, bombers and cruise missiles.","Its salient advantages can be summed up as detect the enemy first, kill the enemy first, seize the initiative. Against the previous generation it can remain outside the enemy's effective sensing range for one-way transparent battlefield awareness and an overwhelming edge; against same-generation aircraft it relies on strong individual lethality and survivability and advanced formation cooperation to close the kill chain quickly and stably, seizing the initiative."],paramsEn:"New-generation medium stealth multirole fighter · single-seat, twin-engine, blended wing-body, twin swept canted tails, all-moving horizontal tail layout · two WS-19 engines · focused on air-superiority missions while carrying out surface strikes.",meaningEn:"The J-35A mainly performs the mission of seizing and maintaining air superiority. Its salient advantages can be summed up as detect the enemy first, kill the enemy first, seize the initiative: against the previous generation it can stay outside the enemy's effective sensing range for one-way transparent battlefield awareness; against same-generation aircraft it relies on strong lethality and survivability and formation cooperation to close the enemy kill chain quickly and stably.",title:"新一代 隐身 战机",name:"歼-35A",engine:"涡扇-19",en:"涡扇-19",enNote:"新一代大推力涡扇发动机 · 展陈素材以实物展品为准",img:"fighter_j35.jpg",engineImg:null,tag:"隐身化、信息化、网络化、智能化",
+   radar:{axes:[["机炮/挂载","内埋挂点4个/外部挂点6个",10],["最大升限","18000米",18000],["作战半径","1350KM",1350],["起飞重量","25吨",25],["最大速度","2.2马赫",2.2],["推力","10t（约98kN）",98]],max:[10,25000,2000,40,2.5,150]},
+   base:{设计:"沈阳飞机设计研究所",生产:"沈阳飞机工业集团",类型:"第五代隐形多用途战机",乘员:"1人",造价:"$5400万",现况:"未服役"},
+   hero:"j35hero",
+   infoParts:[
+     "歼-35A是由中国航空工业集团自主研制的新一代中型隐身多用途战斗机，采用总体/气动/隐身一体化设计的单座、双发、翼身融合、双后掠外倾垂尾、全动平尾的正常式布局，是隐身与反隐身作战体系的规模组成力量，对空、对地、对海都可以，以制空作战为主，兼顾对面作战。",
+     "作为中国新一代隐身战斗机，歼-35A的“新”主要体现在隐身化、信息化、网络化、智能化。",
+     "歼-35A主要遂行夺取并保持制空权任务，打击敌方三/四代战斗机、地面/海上防空力量，拦截敌方战斗机、轰炸机、巡航导弹等空中目标。",
+     "歼-35A的显著优势，可以概括为“先敌发现、先敌杀伤、抢占先机”。在对抗上一代飞机时，歼-35A可以保持在敌方有效感知范围外，实现战场态势的单向透明，具有压倒性优势；在对抗同代飞机时，可凭借单机的强杀伤力与生存力以及编队协同作战的先进手段，实现对敌杀伤链的快速、稳定闭环，从而抢占先机。"
+   ],
+   info:"歼-35A是由中国航空工业集团自主研制的新一代中型隐身多用途战斗机，采用总体/气动/隐身一体化设计的单座、双发、翼身融合、双后掠外倾垂尾、全动平尾的正常式布局，是隐身与反隐身作战体系的规模组成力量，对空、对地、对海都可以，以制空作战为主，兼顾对面作战。作为中国新一代隐身战斗机，歼-35A的「新」主要体现在隐身化、信息化、网络化、智能化。",
+   params:"新一代中型隐身多用途战斗机 · 单座、双发、翼身融合、双后掠外倾垂尾、全动平尾正常式布局 · 装两台「涡扇-19」型发动机 · 以制空作战为主，兼顾对面作战。",
+   meaning:"歼-35A主要遂行夺取并保持制空权任务。其显著优势可以概括为「先敌发现、先敌杀伤、抢占先机」：对抗上一代飞机时，可保持在敌方有效感知范围外，实现战场态势的单向透明；对抗同代飞机时，可凭借强杀伤力与生存力以及编队协同作战，实现对敌杀伤链的快速、稳定闭环。"}
+];
+const HEROES={
+  j5hero:{id:"j5hero",nameEn:"J-5 Combat Heroes",titleEn:"The First Domestic Jet Fighter · Illustrious War Merit Guarding the Skies",parasEn:["On February 18, 1958, Naval Aviation pilots Hu Chunsheng and Shu Jicheng, flying as a pair, shot down a Nationalist RB-57A reconnaissance aircraft over Qingdao, Shandong — the first case of Naval Aviation J-5s downing an enemy plane.","On August 25, 1958, Air Force 9th Division pilot Liu Weimin shot down two Nationalist F-86 fighters over Zhangzhou, Fujian.","On the night of May 29, 1959, pilot Jiang Zhelun, guided by radar, flew a J-5A and shot down a Nationalist B-17G bomber over Wuzhou, Guangxi — the Chinese Air Force's first night air-combat victory.","In September 1958 over Wenzhou, pilot Wang Zizhong shot down two F-86s single-handed before heroically sacrificing his life. The wreckage of the AIM-9 Sidewinder missile left from the battle led China to copy it as the PL-2 air-to-air missile.","On April 24, 1967, a J-5 shot down an intruding U.S. F-4B Phantom over the Guangxi border; the battle lasted 3 minutes 35 seconds."],name:"歼-5 战斗英雄群像",code:"",title:"第一架国产喷气式战机 · 战功赫赫守卫蓝天",img:"",engine:"涡喷-5",fighter:"歼-5",
+    paras:[
+      "1958年2月18日，海军航空兵四师胡春生、舒积成双机组在山东青岛上空击落国民党军队RB-57A侦察机1架，首创海航歼-5击落敌机的战例。",
+      "1958年8月25日，空军第九师飞行员刘维民在福建漳州上空击落2架国民党军队F-86战斗机。",
+      "1959年5月29日夜，空军飞行员蒋哲伦在雷达引导下，驾驶歼-5甲在广西梧州上空击落国民党空军B-17G轰炸机1架，创下中国空军首次夜间空战战果。",
+      "1958年9月温州上空，飞行员王自重单机击落2架F-86后壮烈牺牲；其战机遗留的AIM-9「响尾蛇」导弹残骸，促成我国仿制出霹雳-2空空导弹。",
+      "1967年4月24日，歼-5在广西边境上空击落入侵的美军F-4B「鬼怪」战斗机1架，此战历时3分35秒。"
+    ]},
+  j6hero:{id:"j6hero",nameEn:"J-6 Combat Heroes",titleEn:"The Domestic Fighter with the Richest Homeland Air-Defense Results",parasEn:["From 1964 to 1968, J-6s of the Air Force and Naval Aviation shot down or damaged 22 U.S. aircraft of various types, including the RF-101, A-3B, A-3D, A-6A and types outperforming the J-6 such as the F-104, F-4B and F-4C, without a single J-6 being shot down.","On September 20, 1965, Naval Aviation pilot Gao Xiang, flying a J-6, opened fire at the extreme distance of about 39 meters and shot down a U.S. F-104C, capturing its pilot — setting the record for the closest firing distance in world air-combat history and the first case of a U.S. plane downed over Chinese airspace.","Pilot Gao Changji, flying a J-6, first shot down a Nationalist RF-101 reconnaissance aircraft, setting the record for downing an enemy plane under supersonic conditions in world air-combat history.","Squadron leader Xu Kaitong of an Air Force division climbed to the extreme altitude, closed to 400 meters behind the enemy and fired decisively, shooting down a U.S.-made BQM-147G Firebee high-altitude unmanned reconnaissance drone — the first case of a J-6 downing a high-altitude drone."],name:"歼-6 战斗英雄群像",code:"",title:"国土防空战果最丰的国产战机",img:"",engine:"涡喷-6",fighter:"歼-6",
+    paras:[
+      "1964年至1968年，人民空军和海军航空兵装备的歼-6先后击落击伤各型美机22架，包括RF-101、A-3B、A-3D、A-6A以及性能优于歼-6的F-104、F-4B、F-4C等机型，自身无一架被击落。",
+      "1965年9月20日，海军航空兵飞行员高翔驾驶歼-6在约39米极限距离开炮，击落美军F-104C战斗机并俘获其飞行员，创造了世界空战史上最近交火距离的纪录，也是中国领空首次击落美机的战例。",
+      "飞行员高长吉驾驶歼-6首次击落国民党空军RF-101侦察机，创造了世界空战史上超音速条件下击落敌机的纪录。",
+      "空军航空兵某师中队长徐开通驾驶歼-6，爬升至极限高度，追至敌机尾后400米处果断开炮，击落美制BQM-147G「火蜂」高空无人侦察机，首创歼-6击落高空无人机的战例。"
+    ]},
+  wangwei:{id:"wangwei",nameEn:"Wang Wei",titleEn:"Sea and Sky Guardian · First-Class Model Hero",parasEn:["Wang Wei was born on April 6, 1968 in Huzhou, Zhejiang Province. In life he was a squadron leader of a Naval Aviation unit and a first-class pilot.","Wang Wei held the ideal of joining the military to serve the country from childhood. He became a military flight academy cadet in 1986 and later joined the Communist Party of China for his outstanding performance.","He set several firsts at the flight academy — the first in his class to fly solo, and the first to reach 1,000 flight hours, becoming an all-weather pilot qualified in four weather conditions.","On April 1, 2001, a U.S. Navy EP-3 reconnaissance aircraft illegally entered the airspace above China's exclusive economic zone, and Wang Wei was ordered to track and monitor it. After repeated warnings went unheeded, the U.S. aircraft suddenly and maliciously rammed the fighter Wang Wei was flying, badly damaging his plane. After failing to save the fighter, Wang Wei had to eject and parachute into the sea, ultimately sacrificing his life at the age of 33.","After Wang Wei went into the sea, the Chinese Navy, local units and the people fought continuously for 14 days and nights in a large-scale search and rescue operation, but Wang Wei was not found.","On April 24, 2001 the Central Military Commission awarded Wang Wei the honorary title Sea and Sky Guardian and the First-Class Model Hero Medal; the Navy Party Committee approved him as a revolutionary martyr. Wang Wei's story and spirit are widely told, forming an important part of China's national defense and patriotism education.","Wang Wei's deeds inspire generation after generation of Chinese people; his spirit and number 81192 remain forever in people's hearts as an indelible memory. Every April 1 people commemorate this hero in various ways, calling out: 81192, please return."],name:"王伟",code:"81192",title:"海空卫士 · 一级英模",img:"hero_wangwei.jpg",engine:"涡喷-13",fighter:"歼-8Ⅱ",
+    paras:["王伟，1968年4月6日出生于浙江省湖州市，生前是中国海军航空兵某部飞行中队长，一级飞行员。","王伟从小就有从军报国的理想，1986年成为军校飞行学员，后因表现优异加入中国共产党。","在飞行学院创下了多个「第一」，是同期学员中第一个放单飞的飞行员，也是第一个飞满1000小时，成为能飞4种气象的「全天候」飞行员。","2001年4月1日，美国海军EP-3侦察机非法进入中国专属经济区上空，王伟奉命对其进行跟踪监视。在多次警告无效后，美军飞机突然恶意撞向王伟驾驶的战斗机，导致王伟的飞机受损严重。王伟在极力救护战斗机未果后，不得不弃机跳伞，坠入大海，最终壮烈牺牲，年仅33岁。","王伟落海后，中国海军及地方有关单位和人民群众连续奋战14个昼夜，展开了大规模的搜救行动，但未能找到王伟。","中央军委于2001年4月24日授予王伟「海空卫士」荣誉称号和一级英模奖章，海军党委批准王伟为革命烈士。王伟的故事和精神被广泛传颂，成为中国国防和爱国主义教育的重要组成部分。","王伟烈士的事迹激励着一代又一代的中国人，他的精神和编号81192永远留在了人们的心中，成为永不磨灭的记忆。每年的4月1日，人们都会以各种方式缅怀这位英雄，呼唤「81192，请返航」。"]},
+  luoyang:{id:"luoyang",nameEn:"Luo Yang",titleEn:"Reform Pioneer · An Outstanding Representative Who Lived Out Serving the Nation Through Aviation",parasEn:["Luo Yang was born on June 29, 1961 in Shenyang, Liaoning Province, into a military family.","He began work in 1982 and joined the Communist Party of China in 1986. He served as a designer at Shenyang Aircraft Design Institute, head of its Party Committee Organization Department, and Party Secretary and first deputy director. From 2007 he was chairman and general manager of AVIC Shenyang Aircraft Corporation (SAC).","Luo Yang loved the Party and country and loved aviation, devoting 30 years to it and working with utter dedication until the last moment of his life. He held unswervingly to the belief of serving the nation through aviation, saying: Our greatest pursuit is, through our efforts, to see our advanced fighters equip the forces sooner and our national defense industry quickly narrow the gap with developed countries.","As on-site commander of the J-15 carrier fighter program, Luo Yang led the team to complete the development of the J-15 and several other key models, successfully achieving first flight and design finalization and driving major progress in military fighter development.","While Luo Yang was SAC general manager, SAC achieved the first flight of five models, the number of fighters delivered each year rose greatly, and output value climbed from 4.9 billion to 12.3 billion yuan. He drove the transformation of the company's operating model, lifted its overall strength and led SAC onto a fast track of sustained, leapfrog development.","On November 25, 2012, after taking part in carrier takeoff and landing training aboard China's first aircraft carrier, the Liaoning, Luo Yang suffered a sudden myocardial infarction and cardiac sudden death, dying at his post at the age of 51.","Luo Yang was posthumously awarded the titles Reform Pioneer, Most Beautiful Striver, Outstanding Communist Party Member and Aviation Industry Model Hero.","Luo Yang's life was one of unremitting struggle for China's aviation industry and national defense. The successful development and service of the J-15 carrier fighter not only lifted the Chinese Navy's combat capability but also marked major progress in China's aviation industry. Though Luo Yang has passed away, his spirit and contributions will always be remembered."],name:"罗阳",code:"",title:"改革先锋 · 用生命践行航空报国的优秀代表",img:"hero_luoyang.jpg",engine:"涡扇-10",fighter:"歼-15",
+    paras:["罗阳，1961年6月29日出生于辽宁省沈阳市一个军人家庭。","1982年参加工作，1986年加入中国共产党。曾任沈阳飞机设计研究所设计员，党委组织部部长，党委书记兼第一副所长。2007年起任中航工业沈阳飞机工业（集团）有限公司董事长、总经理。","罗阳同志爱党爱国、热爱航空，献身航空30载，为航空工业的发展披肝沥胆、鞠躬尽瘁，直至生命的最后一刻。他坚定航空报国的信念，至死不渝，曾说：「我们最大的追求就是通过我们的努力，使我国的先进战机能够早日装备部队，使我国的国防工业能够尽快缩小与发达国家的差距。」","作为歼-15舰载机研制现场总指挥，罗阳带领团队完成了歼-15舰载机等多个重点型号研制并成功实现首飞和设计定型，推动军用战斗机研制取得重大进展。","在罗阳担任沈飞总经理期间，沈飞实现5个型号首飞，每年为客户交付的战机数量大幅增加，产值从49亿元上升至123亿元。他推动企业经营模式转型，提升企业综合实力，带领沈飞迈入持续跨越发展的快车道。","2012年11月25日，罗阳在随中国首艘航空母舰「辽宁舰」参与舰载机起降训练后，突发心肌梗死、心源性猝死，以身殉职，享年51岁。","罗阳同志被追授「改革先锋」「最美奋斗者」「全国优秀共产党员」「航空工业英模」等称号。","罗阳的一生是为中国航空工业和国防事业不懈奋斗的一生。歼-15舰载机的成功研制和服役，不仅提升了中国海军的作战能力，也标志着中国在航空工业领域取得了重大进步。罗阳同志虽然已经离世，但他的精神和贡献将永远被铭记。"]},
+  j11hero:{id:"j11hero",nameEn:"J-11 Unit Group Portrait",titleEn:"The First Unit on Combat Air Patrol in the East China Sea ADIZ",parasEn:["On November 23, 2013 China announced the establishment of the East China Sea Air Defense Identification Zone. On the day it was set up, pilots of an Air Force brigade flew J-11s to the controlled airspace on combat air patrol, becoming the Air Force's first fighter unit to carry out such a mission there.","In 2016 the brigade's J-11s and H-6K formations flew over the Miyako Strait, successfully breaking through the so-called first island chain and dealing lawfully and decisively with harassment by foreign military aircraft.","An Eastern Theater Command Air Force brigade, home of the Wang Hai Squadron, has outstandingly carried out routine control of the East China Sea ADIZ, fighting dozens of times across the deserts, plateaus and seas, producing advanced figures such as the Model of the Times Hao Jingwen."],name:"歼-11 部队群像",code:"",title:"东海防空识别区首个战备警巡部队",img:"",engine:"涡扇-10A",fighter:"歼-11",
+    paras:[
+      "2013年11月23日，我国宣布划设东海防空识别区。划设当天，空军某旅飞行员即驾驶歼-11飞赴管控空域执行战备警巡任务，成为空军首个在东海防空识别区执行战备警巡任务的歼击机部队。",
+      "2016年，该旅歼-11战机与轰-6K编队飞越宫古海峡，成功突破所谓「第一岛链」，面对外军飞机袭扰依法果断处置。",
+      "「王海大队」所在的东部战区空军航空兵某旅，出色完成东海防空识别区常态化管控任务，数十次征战大漠、奋战高原、鏖战海天，涌现出「时代楷模」郝井文等先进人物。"
+    ]},
+  j35hero:{id:"j35hero",nameEn:"J-35A Development Team",titleEn:"The New-Generation Stealth Fighter · Carrying On Service to the Nation Through Aviation",parasEn:["The J-35A is independently developed by the Aviation Industry Corporation of China as a new-generation medium stealth multirole fighter, representing the latest achievements of Chinese aviation in stealth, informatization, networking and intelligence.","As the new-generation model inherited from Shenyang's aviation industry, the J-35A development team carries on the Luo Yang spirit and the tradition of serving the nation through aviation, continuously tackling key problems in stealth overall design, advanced materials and processes.","This type has not yet entered service and there are currently no public heroic personal deeds; related development and testing information is subject to official releases."],name:"歼-35A 研制团队",code:"",title:"新一代隐身战机 · 接续航空报国",img:"",engine:"涡扇-19",fighter:"歼-35A",
+    paras:[
+      "歼-35A由中国航空工业集团自主研制，是新一代中型隐身多用途战斗机，代表中国航空工业隐身化、信息化、网络化、智能化发展的最新成果。",
+      "作为沈阳航空工业传承的新一代型号，歼-35A的研制团队传承「罗阳精神」与航空报国传统，在隐身总体设计、先进材料与工艺等方面持续攻关。",
+      "该机型尚未服役，暂无公开的英雄人物事迹；相关研制与试验信息以官方发布为准。"
+    ]}
+};
+const BATTLE=[
+  "1958年2月18日，海军航空兵四师胡春生、舒积成双机组在山东青岛上空击落国民党军队RB-57A侦察机1架。",
+  "1958年4月21日夜，B-17G型侦察机1架低空进入江西地区，空军第12师飞行员李顺祥驾驶歼-5甲（米格-17ПФ）型飞机，在指挥所的引导下，使用改进的机载雷达，在约300米高度将其击伤。",
+  "1958年8月25日，空九师刘维民在福建漳州上空击落2架国民党军队F-86。",
+  "1959年5月29日21时，B-17G型飞机1架由雷州半岛入广西梧州附近。23时8分30秒，广州空18师值班指挥员、副师长李宪刚令52团截击机大队中队长蒋哲伦起飞拦截。蒋哲伦在雷达掌握目标时断时续的情况下，驾驶歼-5甲（米格-17ПФ）型飞机在地面领航员王金彰、谭流光的引导下，从云隙中出航，抓住战机，使用机上雷达距离3.2千米发现目标，2千米截获，开炮将B-17G击落。",
+  "1958年9月，歼-5编队与国民党军队24架配有新型AIM-9B响尾蛇导弹的F-86编队在浙江温州上空遭遇。解放军记载：飞行员王自重因掉队而被12架F-86围攻，王自重单机击落2架敌机后被F-86携带的AIM-9「响尾蛇」导弹击落，这也是响尾蛇导弹第一次实战击落飞机。然而该战中一枚响尾蛇导弹卡在1架歼-5上未引爆，事后被苏联和中国仿制为K-13（AA-2）导弹和霹雳-2导弹。",
+  "1965年4月9日，4架解放军空军所属的米格-17/歼-5战机于南海上空与美国海军的F-4B遭遇，发生近距离空中冲突。海航四师李大云驾驶歼-5追击1架美军F-4B，另一架F-4B尾随在李大云后发射了「响尾蛇」导弹，李大云驾机迅速作出机动动作摆脱了导弹。由于当时「响尾蛇」导弹采用热感应追踪目标，没有敌我识别能力，结果将李大云先前追击的F-4B飞机击落。",
+  "1967年4月24日，美军出动大批F-4、F-8战斗机轰炸越南谅山。其中两架F-4B「鬼怪」式战斗机从广西板兴侵入了中国边境领空，1架被高炮击落，另一架扔掉副油箱和起落架加速脱离，被高空待战的4架歼-5战斗机采用大角度80度接敌。二号机4次开炮没有击中敌机，一号机连续猛烈射击，前两次都未打中，最后一次抵近400米射击击中敌机，F-4坠入北部湾。此战历时3分35秒。"
+];
+const BATTLE_EN=["On February 18, 1958, Naval Aviation pilots Hu Chunsheng and Shu Jicheng, flying as a pair, shot down a Nationalist RB-57A reconnaissance aircraft over Qingdao, Shandong.","On the night of April 21, 1958, a B-17G reconnaissance aircraft flew low into Jiangxi. Air Force 12th Division pilot Li Shunxiang, flying a J-5A (MiG-17PF) and guided by the command post with improved onboard radar, damaged it at about 300 meters altitude.","On August 25, 1958, Air Force 9th Division pilot Liu Weimin shot down two Nationalist F-86s over Zhangzhou, Fujian.","At 21:00 on May 29, 1959, a B-17G entered from the Leizhou Peninsula near Wuzhou, Guangxi. At 23:08, on-duty commander Li Xiangang of Guangzhou Air 18th Division ordered squadron leader Jiang Zhelun of the 52nd Regiment interceptor group to take off. With radar contact intermittent, Jiang Zhelun, guided by ground navigators, flew through gaps in the clouds, found the target at 3.2 km with onboard radar, locked on at 2 km and shot the B-17G down.","In September 1958 a J-5 formation encountered over Wenzhou, Zhejiang a formation of 24 Nationalist F-86s armed with the new AIM-9B Sidewinder. According to PLA records, pilot Wang Zizhong, having fallen behind, was set upon by 12 F-86s; he shot down two enemy planes single-handed before being downed by a Sidewinder, the missile's first combat kill. One Sidewinder, however, lodged in a J-5 without exploding and was afterward copied by the Soviet Union and China as the K-13 (AA-2) and PL-2 missiles.","On April 9, 1965, four PLA MiG-17/J-5 fighters had a close aerial encounter over the South China Sea with U.S. Navy F-4Bs. Naval Aviation pilot Li Dayun chased one F-4B; another F-4B behind him fired a Sidewinder, which Li Dayun maneuvered to evade. As the Sidewinder was heat-seeking with no IFF, it shot down the F-4B Li Dayun had been chasing.","On April 24, 1967, large numbers of U.S. F-4 and F-8 aircraft bombed Lang Son, Vietnam. Two F-4B Phantoms crossed the border at Banxing, Guangxi; one was downed by anti-aircraft guns, while the other jettisoned drop tanks and accelerated away, met at an 80-degree angle by four J-5s on standby. The No.2 aircraft fired four times without hits; the No.1 fired in sustained bursts, missing the first two times and finally closing to 400 meters to hit; the F-4 fell into the Gulf of Tonkin. The battle lasted 3 minutes 35 seconds."];
+const MILES_EN=[["1949", "China's first lathe: Shenyang No.1 Machinery Factory, predecessor of Shenyang No.1 Machine Tool Works, produced China's first lathe, the six-foot belt-driven lathe."], ["1953", "China's first engine lathe: as one of the country's 156 key construction projects, Shenyang No.1 Machine Tool Works introduced Soviet machine-building and management technology and independently developed the C620-1."], ["1964", "China's first semi-automatic camshaft lathe: Shenyang No.1 Machine Tool Works independently developed the CT8305."], ["1965", "China's first pipe joint boring machine: Shenyang No.1 Machine Tool Works independently developed the Q1545."], ["1973", "China's first CNC lathe: the CSK6163 was successfully developed at Shenyang No.1 Machine Tool Works, marking the arrival of the automation age in China's lathe field."], ["1989", "China's first flexible machining cell: Shenyang No.1 Machine Tool Works, introducing Heidemann technology from Germany, produced China's first flexible machining cell."]];
+const REGIONS=[
+  {id:"dongbei",nameEn:"Northeast",name:"东北",insts:["hrb","sy"]},
+  {id:"huabei",nameEn:"North China",name:"华北",insts:["bj"]},
+  {id:"huadong",nameEn:"East China",name:"华东",insts:["sh","nc","jd","nj"]},
+  {id:"huazhong",nameEn:"Central China",name:"华中",insts:["ly","xy","tc"]},
+  {id:"xibei",nameEn:"Northwest",name:"西北",insts:["xa"]},
+  {id:"xinan",nameEn:"Southwest",name:"西南",insts:["cd","gy"]},
+  {id:"huanan",nameEn:"South China",name:"华南",insts:[]}
+];
+const INSTITUTES={
+  hrb:{cityEn:"Harbin",nameEn:"AVIC Aerodynamics Research Institute (Harbin Campus)",briefEn:"Formerly the Harbin Aerodynamics Research Institute, founded in 1955, focused on applied aerodynamics research, numerical aerodynamic computation, wind tunnel testing and test technology, and related measurement and control instruments.",fullEn:"AVIC Aerodynamics Research Institute (Harbin Campus), formerly the Harbin Aerodynamics Research Institute (Institute 627), was founded in 1955 and is a specialized aerodynamics institution under the Aviation Industry Corporation of China (AVIC). Located on Yiman Street in Harbin, Heilongjiang, it focuses on applied aerodynamics research, numerical aerodynamic computation, wind tunnel testing and test technology, and related measurement and control instruments. As an important contributor to China's aviation industry, it has taken part in several key domestic aircraft programs and conducted hundreds of thousands of wind tunnel tests. It gained the right to train aerodynamics master's students in 1982 and set up a postdoctoral research station in 2002, making a marked contribution to the field.",city:"哈尔滨",region:"东北",code:"627所",name:"航空工业空气动力研究院（哈尔滨院区）",
+    brief:"前身哈尔滨空气动力研究所，成立于1955年，专注于航空气动力应用研究、气动力数值计算、风洞实验与实验技术研究以及相关测控仪器设备的研制。",
+    full:"航空工业空气动力研究院（哈尔滨院区），前身哈尔滨空气动力研究所（627所），成立于1955年，是中国航空工业集团有限公司下属的空气动力专业研究机构。位于黑龙江省哈尔滨市南岗区一曼街2号，哈尔滨院区专注于航空气动力应用研究、气动力数值计算、风洞实验与实验技术研究，以及相关测控仪器设备的研制。作为中国航空工业的重要贡献单位，哈尔滨院区参与了国内多个重点飞机型号的研制工作，并进行了数十万次风洞试验。此外，哈尔滨院区于1982年获得空气动力学专业硕士培养权，2002年设立博士后科研工作站，为我国航空气动力领域的发展做出了显著贡献。"},
+  sy:{cityEn:"Shenyang",nameEn:"AVIC Aerodynamics Research Institute (Shenyang Campus)",briefEn:"Formerly the Shenyang Aerodynamics Research Institute, founded in 1958, later merged with Institute 627 to form AVIC Aerodynamics Research Institute; it has taken part in nearly every key domestic aircraft program.",fullEn:"AVIC Aerodynamics Research Institute (Shenyang Campus) is a specialized institution under the Aviation Industry Corporation of China, located in Shenyang, Liaoning. Formerly the Shenyang Aerodynamics Research Institute (Institute 626), founded in 1958, it merged in 2000 with the Harbin Aerodynamics Research Institute (Institute 627) to form AVIC Aerodynamics Research Institute. The Shenyang campus focuses on basic aerodynamics research, aircraft aerodynamic layout design, applied aerodynamics, computational aerodynamics and wind tunnel testing, and has taken part in nearly every key domestic aircraft program, conducting hundreds of thousands of wind tunnel tests such as those for the C919. It has been named a Major Contributor to China's Aviation Industry.",city:"沈阳",region:"东北",code:"626所",name:"航空工业空气动力研究院（沈阳院区）",
+    brief:"前身沈阳空气动力研究所，始建于1958年，后与627所合并组建中国航空工业空气动力研究院，参与国内几乎所有重点飞机型号的研制。",
+    full:"航空工业空气动力研究院（沈阳院区）是中国航空工业集团有限公司下属的专业研究机构，位于辽宁省沈阳市。前身为沈阳空气动力研究所（626所），始建于1958年，后于2000年与哈尔滨空气动力研究所（627所）合并组建成中国航空工业空气动力研究院。作为事业法人单位，沈阳院区专注于航空气动力基础研究、飞行器气动布局设计技术、空气动力应用技术、计算空气动力学、风洞试验技术等领域的研究，并参与了国内几乎所有重点飞机型号的研制工作，进行了数十万次风洞试验，如C919飞机的风洞试验，被评为「中国航空工业重大贡献单位」。",cons:"626"},
+  bj:{cityEn:"Beijing",nameEn:"China Aviation Comprehensive Technology Research Institute",briefEn:"The aviation industry's only key laboratory focused on environmental and reliability research, and a core unit for aviation standardization.",fullEn:"China Aviation Comprehensive Technology Research Institute (AVIC Institute 301) is under the Aviation Industry Corporation of China and is the aviation industry's only key laboratory focused on environmental and reliability research. It undertakes basic technology research and is a core unit for aviation standardization, including the standardization research centers of COSTIND and the GAD, the Aviation Productivity Promotion Center, the Aviation Comprehensive Environment Key Laboratory and the Aviation Standard Parts Testing Center. It also runs national level-2 work-safety training and, as China's technical counterpart to the ISO aerospace technical committee, hosts the ISO/TC20/SC1 secretariat, working on reliability design, environmental adaptability, test evaluation and international standardization. In aircraft research it focuses on standardization, airworthiness regulations and standards, and international cooperation and mutual recognition, involving aircraft such as the ARJ21, MA700, C919, AC311 and AC313.",city:"北京",region:"华北",code:"301所",name:"中国航空综合技术研究所",
+    brief:"航空行业内唯一专注于环境与可靠性研究的航空科技重点实验室，也是航空工业标准化技术的核心单位。",
+    full:"中国航空综合技术研究所（航空301所）隶属于中国航空工业集团公司（AVIC），是航空行业内唯一专注于环境与可靠性研究的航空科技重点实验室。该所不仅承担技术基础研究工作，还是航空工业标准化技术的核心单位，包括国防科工委、总装备部电子信息基础部标准化研究中心，航空生产力促进中心，航空综合环境重点实验室，航空标准件检测中心等。此外，301所还负责国家二级安全生产培训，并作为ISO组织航空航天技术委员会的中国归口单位，承担ISO/TC20/SC1秘书处工作，致力于可靠性设计、环境适应性、试验评价等多个领域的研究与国际标准化工作。中国航空综合技术研究所（301所）在飞机型号研究方面，主要聚焦于标准化工作、适航规章及标准体系研究，以及国际合作与标准互换互认机制的建立，涉及的飞机型号包括ARJ21、新舟700、C919、AC311和AC313等。"},
+  sh:{cityEn:"Shanghai",nameEn:"China National Aeronautical Radio Electronics Research Institute",briefEn:"Focused on avionics systems integration, core avionics processing and application technology, and aeronautical radio communication and navigation research and product development.",fullEn:"China National Aeronautical Radio Electronics Research Institute (Institute 615) is a high-technology institution under the Aviation Industry Corporation of China, located in the Caohejing High-Tech Park in Shanghai. It focuses on avionics systems integration, core avionics processing and application technology, and aeronautical radio communication and navigation research and product development. It has made a major contribution to the aviation industry and national defense, seizing strategic opportunities especially since the 9th Five-Year Plan. The federated integrated avionics systems it led and its preliminary research on integrated avionics were applied to in-service aircraft such as the J-10 and Y-8, earning the Outstanding Contribution Award for Serving the Nation Through Aviation. In recent years it has won over 100 provincial and ministerial awards, and in 2007 received the special and second prizes of the National Science and Technology Progress Award. It integrates research, production and operations and has held the title Shanghai Civilized Unit for five consecutive terms.",city:"上海",region:"华东",code:"615所",name:"中国航空无线电电子研究所",
+    brief:"专注于航空电子系统总体与综合、航空电子核心处理与综合应用技术、航空无线电通讯导航技术的研究与产品研制。",
+    full:"中国航空无线电电子研究所（615所）是中国航空工业集团公司下属的高科技研究所，位于上海市漕河泾高新技术开发区。该所专注于航空电子系统总体与综合、航空电子核心处理与综合应用技术、航空无线电通讯导航技术的研究与产品研制。615所在航空工业和国防建设中作出了重大贡献，特别是在「九五」以来抓住战略机遇期，实现了快速发展。其主持研制的联合式航电综合系统和综合式航电系统预研等项目在歼十和运八等现役飞机上得到应用，荣获「航空报国突出贡献奖」。近五年来，615所获得省部级科技成果奖100多项，2007年获得国家科学技术进步奖特等奖和二等奖。坚持科研、生产、经营一体化发展，经济收入快速增长，人均销售收入和创利连续多年名列前茅。615所还连续五届十年荣获「上海市文明单位」称号，获得「全国企业文化建设优秀单位奖」和「全国企业文化建设优秀成果奖」。"},
+  nc:{cityEn:"Nanchang",nameEn:"AVIC Hongdu Aircraft Design and Research Institute",briefEn:"One of China's oldest aircraft design institutes, having developed 12 aircraft categories and over 40 models including the CJ-5, CJ-6, Q-5, J-12, K-8, JL-8 and L-15.",fullEn:"AVIC Hongdu Aircraft Design and Research Institute, also called Institute 650, is one of China's oldest aircraft design institutes, with complete aircraft design and testing capabilities and the ability to provide relatively advanced flight training systems. It has developed 12 categories and over 40 models, including the CJ-5, CJ-6, Q-5, J-12, K-8, JL-8 and L-15 (JL-10), with trainers forming a full primary, intermediate and advanced series. The L-15 advanced trainer is the only domestic trainer developed in step with the advanced international level. As an important base for China's aircraft design, Hongdu has made an outstanding contribution, especially in trainers, building a full-spectrum product line from primary to advanced.",city:"南昌",region:"华东",code:"650所",name:"航空工业洪都飞机设计研究所",
+    brief:"中国历史最悠久的飞机设计研究所之一，先后研制了初教5、初教6、强5、歼12、K8、JL8、L15等12个机种、40多个型号。",
+    full:"航空工业洪都飞机设计研究所，也称为650所，是中国历史最悠久的飞机设计研究所之一，具备完整的飞机设计、试验能力，并能提供较为领先的飞行训练系统。该研究所先后研制了初教5、初教6、强5、歼12、K8、JL8、L15（教10）等12个机种，40多个型号，其中教练机已形成初、中、高级系列发展。L15高级教练机是国内唯一一个与国际先进水平同步发展的教练机。洪都飞机设计研究所作为我国飞机设计的重要基地，为我国航空工业的发展作出了突出贡献，特别是在教练机领域形成了从初级到高级的全谱系教练机产品。"},
+  jd:{cityEn:"Jingdezhen",nameEn:"China Helicopter Research and Development Institute",briefEn:"China's only helicopter design institute, capable of developing third- and fourth-generation helicopters; it has developed 12 series and over 60 models including the Z-8, Z-10 and Z-20.",fullEn:"China Helicopter Research and Development Institute (Institute 602) is a member unit under the Aviation Industry Corporation of China, founded in 1969 and located in Jingdezhen, Jiangxi. As China's only helicopter design institute, it has over 20 specialized laboratories and the capability to develop third- and fourth-generation helicopters, having successfully developed 12 series and over 60 military and civil helicopter and unmanned helicopter models, including the Z-8, Z-9, Z-11, Z-10, Z-19, Z-20, AC313, AC311, AC352 and AR-500. It has achieved rich results in technological innovation, pushed Chinese helicopter technology toward the advanced world level, played an important role in military-civil integration and international cooperation, and made a marked contribution to national defense and the national economy.",city:"景德镇",region:"华东",code:"602所",name:"中国直升机设计研究所",
+    brief:"国内唯一的直升机设计研究所，具备研制第三代、第四代先进直升机的能力，成功研制直-8、直-10、直-20等12个系列60多种型号。",
+    full:"中国直升机设计研究所（602所）是中国航空工业集团有限公司下属的成员单位，成立于1969年，位于江西省景德镇市。作为国内唯一的直升机设计研究所，该所拥有20多个专业研究室，具备研制第三代、第四代先进直升机的能力，并已成功研制包括直-8、直-9、直-11、直-10、直-19、直-20、AC313、AC311、AC352、AR-500等在内的12个系列60多种型号的军民用直升机及无人直升机。研究所在技术创新方面成果丰硕，推动中国直升机技术迈向世界先进水平，并在军民融合及国际合作方面发挥重要作用，为国防建设和国民经济建设作出了显著贡献。"},
+  nj:{cityEn:"Nanjing",nameEn:"China Special Vehicle Research Institute",briefEn:"China's only lead institute for water-based aircraft, lighter-than-air craft and general aviation, having developed products such as China's first large seaplane.",fullEn:"China Special Vehicle Research Institute (code 605), under the Aviation Industry Corporation of China, is the nation's only lead institute for water-based aircraft, lighter-than-air craft and general aviation R&D. It was founded in 1961 in Nanjing and settled in Jingmen, Hubei in 1968. As a key national military-support unit, it has developed China's first large seaplane, first practical manned helium airship, first agricultural ultra-light aircraft, first ultra-light seaplane, first practical wing-in-ground-effect aircraft, first tethered balloon information platform and first-generation stratospheric airship test vehicle. It is currently developing the AG600 large firefighting and water-rescue amphibian, the HO300 light amphibian, the AG50 light sport aircraft and various lighter-than-air craft, and has won over 500 national, provincial and ministerial awards, filling many gaps in China's aviation high technology.",city:"南京",region:"华东",code:"605所",name:"中国特种飞行器研究所",
+    brief:"我国唯一从事水面飞行器、浮空飞行器和通用飞机研发的主机研究所，先后研制了中国第一架大型水上飞机等航空产品。",
+    full:"中国特种飞行器研究所（代号605），隶属于中国航空工业集团有限公司，是我国唯一从事水面飞行器、浮空飞行器和通用飞机研发的主机研究所。该研究所始建于1961年，在南京组建，1968年定点湖北荆门。作为国家重点保军单位，中国特种飞行器研究所拥有丰富的科研和技术成果，先后研制完成了中国第一架大型水上飞机、第一艘实用载人充氦飞艇、第一架农林用超轻型飞机、第一架超轻型水上飞机、第一架实用型地效飞机、第一艘系留气球信息平台、第一代平流层飞艇平台试验艇等航空产品。目前，研究所正在承研AG600大型灭火/水上救援水陆两栖飞机、HO300轻型水陆两栖飞机、AG50轻型运动飞机及多型浮空器系列产品。研究所先后获得国家及省部级科技成果五百余项，填补了中国航空高科技和基础研究领域的多项空白。"},
+  ly:{cityEn:"Luoyang",nameEn:"AVIC Luoyang Electro-Optical Equipment Research Institute",briefEn:"Engaged in research and product development of airborne electro-optical systems and fire control systems, providing advanced fire control and electro-optical equipment for domestic fighters.",fullEn:"AVIC Luoyang Electro-Optical Equipment Research Institute (Institute 613) is a research institution under the Aviation Industry Corporation of China, located in Luoyang, Henan. It mainly researches and develops airborne electro-optical systems, fire control systems and other avionics specialties, providing advanced fire control and electro-optical equipment for several domestic fighter types. It is an important development base for China's airborne fire control systems.",city:"洛阳",region:"华中",code:"613所",name:"航空工业洛阳电光设备研究所",
+    brief:"从事机载光电火控系统等专业的研究与产品研制，为国产战机提供先进的火控与光电装备。",
+    full:"航空工业洛阳电光设备研究所（613所）是中国航空工业集团有限公司下属的研究机构，位于河南省洛阳市，主要从事机载光电系统、火力控制系统等航空电子专业的研究与产品研制，为多型国产战斗机提供了先进的火控与光电装备，是我国航空机载火力控制系统的重要研制基地。"},
+  xy:{cityEn:"Xiangyang",nameEn:"AVIC Radar and Avionics Research Institute",briefEn:"Integrating airborne radar and avionics R&D, testing and manufacturing, covering integrated surveillance systems, airborne radar, cockpit displays and many other products.",fullEn:"AVIC Radar and Avionics Research Institute traces back to Institute 607, China Leihua Electronic Technology Research Institute, founded in March 1970. In March 2004, based on Institute 607 and Factory 171, AVIC Radar and Avionics Research Institute was formally established. It integrates airborne radar and avionics R&D, testing and manufacturing, serving both government and commercial systems, with products including integrated surveillance systems, airborne radar, cockpit displays, broadcast and TV network transmission equipment, C919 seat components and special sensor devices.",city:"襄阳",region:"华中",code:"607所",name:"航空工业雷达与电子设备研究院",
+    brief:"集机载雷达和航空电子系统研发、试验、制造为一体，业务覆盖综合监视系统、机载雷达、座舱显示器等众多产品。",
+    full:"航空工业雷达与电子设备研究院的前身可以追溯到607所，即中国雷华电子技术研究所，该研究所成立于1970年3月。2004年3月，基于607所和171厂的基础上，航空工业雷达与电子设备研究院正式挂牌成立。研究院集机载雷达和航空电子系统研发、试验、制造为一体，业务范围覆盖政府系统和商用系统两大领域，涉及综合监视系统、机载雷达、座舱显示器、广播电视网络传输设备、C919飞机座椅等部件的生产、专用传感器件等众多产品。"},
+  tc:{cityEn:"Tongchuan",nameEn:"Aircraft Strength Research Institute of China",briefEn:"China's only aircraft strength research, verification and appraisal center, conducting ground strength verification from materials and elements to components and complete airframes.",fullEn:"Aircraft Strength Research Institute of China, under the Aviation Industry Corporation of China, is the nation's only aircraft strength research, verification and appraisal center. It carries out advance research in aircraft strength technology, provides theories, methods and tools for solving aviation strength problems, and undertakes ground strength verification tests from materials and elements to components and complete airframes, with the function of verifying and issuing appraisal conclusions for newly developed and modified aircraft on behalf of the state. It also provides technical services and products for aerospace, ordnance, rail transit, petroleum and wind power.",city:"铜川",region:"华中",code:"623所",name:"中国飞机强度研究所",
+    brief:"我国唯一的飞机强度研究、验证与鉴定中心，承担从材料、元件、部件到整机结构的地面强度验证试验。",
+    full:"中国飞机强度研究所（简称「强度所」）隶属于中国航空工业集团有限公司，是我国唯一的飞机强度研究、验证与鉴定中心。主要开展飞机强度技术领域的预先研究，提供解决航空强度问题的理论、方法、工具，承担从材料、元件、部件到整机结构的地面强度验证试验，具有代表国家对新研及改型飞机强度进行验证、并给出鉴定结论的职能。同时，也为航天、兵器、轨道交通、石油风电等领域提供技术服务和产品支持。"},
+  xa:{cityEn:"Xi'an",nameEn:"AVIC First Aircraft Institute",briefEn:"Integrating the design of fighter-bombers, bombers, civil aircraft, transports and special aircraft, having developed over 30 models including the Y-7, KJ-1 and China Flying Leopard.",fullEn:"AVIC First Aircraft Institute, located in historic Xi'an, is a large and medium military-civil aircraft design institute integrating the design of fighter-bombers, bombers, civil aircraft, transports and special aircraft. It brings together Chinese Academy of Engineering academicians, national-level young experts and complete military-civil design teams. Passing through three stages — surveying and imitation, improvement and modification, and fully independent design — it has successfully developed over 30 models, including China's first regional airliner the Y-7, first airborne early warning aircraft the KJ-1, first-generation fighter-bomber the China Flying Leopard and the first light business jet the XY-500, setting four milestones in Chinese aviation history. Upholding the Flying Leopard spirit, it has built supporting research facilities and won over 300 national, provincial and ministerial awards. On September 3, 2022 its large solar UAV, the Qimingxing-50, made its maiden flight in Yulin, Shaanxi.",city:"西安",region:"西北",code:"一飞院",name:"航空工业第一飞机设计研究院",
+    brief:"集歼击轰炸机、轰炸机、民用飞机、运输机和特种飞机设计研究于一体，成功研制运七、空警1号、「中国飞豹」等30多种飞机型号。",
+    full:"中国航空工业集团公司第一飞机设计研究院，位于古城西安，是中国集歼击轰炸机、轰炸机、民用飞机、运输机和特种飞机等设计研究于一体的大中型军民用飞机设计研究院。该院汇聚了中国工程院院士、国家级有突出贡献的中青年专家以及完整的军民机设计团队。历经从测仿设计、改进改型到完全自行设计研制飞机的三个发展阶段，一飞院成功研制了包括我国第一代支线客机运七飞机、第一架空中预警机空警1号、第一代歼击轰炸机「中国飞豹」、第一架轻型公务机小鹰-500飞机在内的30多种飞机型号，树立了中国航空工业史上的四座里程碑。秉承「报国、拼搏、求实、创新、团队」的飞豹精神，一飞院建立了配套科研设施，取得了300多项国家、部省级科技成果。2022年9月3日，由一飞院研制的「启明星50」大型太阳能无人机在陕西榆林首飞成功。"},
+  cd:{cityEn:"Chengdu",nameEn:"AVIC Chengdu Aircraft Design and Research Institute",briefEn:"An important base for modern Chinese fighter and UAV design, undertaking key national programs such as the J-7 series, J-10 series and J-20.",fullEn:"AVIC Chengdu Aircraft Design and Research Institute (Institute 611) is an important institution under the Aviation Industry Corporation of China, founded in 1970 and located in Chengdu, Sichuan. As an important base for modern Chinese fighter and UAV design, it mainly conducts aircraft design and comprehensive aerospace multidisciplinary research. It has undertaken key national programs and many preliminary projects, including the J-7 series, JF-17, J-10 series, J-20 and various UAV series. In advanced aerodynamics and stealth, flight control, avionics integration, stealth technology and virtual simulation its research is at the leading domestic and international level, with hundreds of specialties covering the whole design process; it has won the National Science and Technology Progress Special Prize and the China Quality Award.",city:"成都",region:"西南",code:"611所",name:"航空工业成都飞机设计研究所",
+    brief:"我国现代化歼击机和无人机设计研究的重要基地，先后承担歼7系列、歼10系列、歼20战斗机等国家重点型号研制。",
+    full:"航空工业成都飞机设计研究所（简称611所）是中国航空工业集团有限公司下属的重要飞机设计研究机构，成立于1970年，位于四川省成都市。作为我国现代化歼击机和无人机设计研究的重要基地，该研究所主要从事飞行器设计和航空航天多学科综合性研究。研究所先后承担了歼七系列战斗机、枭龙（JF-17）战斗机、歼10系列战斗机、歼20战斗机、各系列无人机等多个国家重点飞机型号研制和大量预研课题任务。在先进气动布局、飞行控制、航空电子综合、隐身技术、虚拟仿真等航空航天高技术领域，研究水平处于国内国际领先地位。成都飞机设计研究所设有总体气动隐身、结构强度、振动、飞行控制、航空电子、机电综合等数百个专业，研制流程覆盖飞机设计全过程，先后荣获国家科学技术进步特等奖、中国质量奖等奖项。"},
+  gy:{cityEn:"Guiyang",nameEn:"AVIC Guizhou Guihang Aircraft Design and Research Institute",briefEn:"Guizhou's only aircraft R&D unit, having designed and developed the J-6 series, J-7II, JJ-7 series, Shanying series and Yaoying series.",fullEn:"AVIC Guizhou Guihang Aircraft Design and Research Institute, located in Anshun, Guizhou, was founded in 1968 and is under AVIC Guizhou Aircraft Co. It mainly designs, tests and conducts preliminary research on fighters, trainers and UAVs. As Guizhou's only aircraft R&D unit, it has a complete research system and a digital distributed collaborative design system, with over 30 specialties covering the whole design process. Since its founding it has designed and developed the J-6 series, J-7II, JJ-7 series, Shanying series and Yaoying series fighters, advanced trainers and UAVs, winning over 400 awards including the National Science Conference award and first prize of National Science and Technology Progress.",city:"贵阳",region:"西南",code:"贵飞所",name:"航空工业贵州贵航飞机设计研究所",
+    brief:"贵州省唯一的飞机设计研发单位，设计研制了歼六系列、歼七Ⅱ、歼教七系列、「山鹰」系列和鹞鹰系列等多个型号。",
+    full:"航空工业贵州贵航飞机设计研究所（简称贵飞所）位于贵州省安顺市，成立于1968年，隶属于中航贵州飞机有限责任公司。贵飞所主要从事歼击机、教练机和无人机的设计、试验和预研工作。作为贵州省唯一的飞机设计研发单位，贵飞所拥有完整的飞机科研体系和数字化异地协同飞机设计体系。贵飞所设有总体气动、结构强度、功能系统、航电综合、任务载荷等30多个专业，覆盖飞机设计全过程。建所以来，贵飞所秉承「航空报国、强军富民」的宗旨，设计研制了歼六系列、歼七Ⅱ、歼教七系列、「山鹰」系列和鹞鹰系列等多个型号的歼击机、高级教练机和无人机，共获得全国科学大会奖、国家科技进步一等奖等400余项奖项。"}
+};
+const SANXIAN_TEXT_EN="The Third Front was a large-scale program of national defense, science, industry and transport infrastructure, guided by war preparedness, that the state carried out in the central and western regions from 1964. Shenyang, with its strong heavy-industry base, took on arduous tasks. A large group of Tiexi workers went west: from 1950 to 1989, 48 Tiexi enterprises took part, sending 23,304 people in all, including 94 factory-level cadres, 7,000 middle-level cadres and 16,210 skilled workers. Three enterprises moved in full, 23 built new factories on a turnkey basis and 29 transferred entire workshops; 13,221 people were trained for others; 29 provinces, municipalities and autonomous regions, 121 cities and counties and 526 enterprises received aid. State-owned Shenyang Factory 410 (now AECC Shenyang Liming Aero-Engine Co.), following the Third Ministry of Machine Building and the three guarantees and one assurance principle — guarantee construction, relocation and production start while assuring higher output at the old factory — sent large numbers of cadres, technicians, workers and equipment from 1965 to 1969 to Base 011 in Guizhou and Base 012 in Hanzhong. As of 1969 it had sent 2,665 personnel, 118 machine tools and 12,598 sets of tools, fixtures, gauges and measuring tools. In October 1965 the Ministry of Transport asked Shenyang to send a motor squadron of 50 vehicles to Sichuan; from November it ran the 800-kilometer round-trip highway transport between Chengdu and Dukou. The Shenyang region sent nearly 20,000 leading cadres and technical support personnel nationwide, forming the one institute, one factory aviation layout across the Northeast, North, Northwest and Southwest.";
+const SANXIAN_TEXT="三线建设是自1964年起，国家在中西部地区进行的一场以战备为指导思想的大规模国防、科技、工业和交通基本设施建设。重工业基础雄厚的沈阳承担了艰巨而繁重的任务。一大批铁西区工人奔向祖国西部，从1950年至1989年期间，铁西区48个企业参与援建，先后共派出23304人，其中厂级干部94人、中层干部7000人、技术工人16210人。其中三家企业进行全厂搬迁，23家企业包建新厂，29家企业车间整体划拨。代培人员13221人，受援省市自治区29个，受建市县121个，受建企业526个。沈阳国营四一〇厂（今中国航发沈阳黎明航空发动机有限责任公司）根据国家第三机械工业部的指示按「三包一保」（即包建、包迁、包投产，保证老厂增产）的要求，于1965年至1969年间为贵州地区的011基地和汉中地区的012基地的三线建设输送了大批干部、技术人员、工人和设备，为加速三线建设贡献了力量。截至1969年，工厂向三线新厂共输送各类人员2665名，机床设备118台，各类工夹量具合计12598件套。1965年10月，国家交通部要求沈阳市派出一个由50辆汽车组成的汽车中队参加辽宁汽车运输大队，开赴四川省。沈阳派出的汽车中队从11月起承担了成都至渡口之间800公里的公路往返运输任务。沈阳地区向全国输送了领导干部和技术支援力量等近2万人，形成了东北、华北、西北、西南等地的「一所、一厂」航空工业布局。";
+
+/* ================= 路由 ================= */
+let hist=[{screen:"cover",params:{}}];
+const screenEl=document.getElementById("screen");
+const headerEl=document.getElementById("header");
+
+function go(screen,params){ hist.push({screen:screen,params:params||{}}); render(); scrollTop(); }
+function replace(screen,params){ hist.pop(); hist.push({screen:screen,params:params||{}}); render(); scrollTop(); }
+function back(){ if(hist.length>1){hist.pop();} render(); scrollTop(); }
+function scrollTop(){ const s=document.querySelector("#screen .screen.active .scroll"); if(s) s.scrollTop=0; }
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.style.display="block"; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display="none",1600); }
+/* hash 深链：#/screen[/id[/tab]] */
+function parseHash(){
+  const h=location.hash.replace(/^#\/?/,"");
+  if(!h||h==="cover")return null;
+  const parts=h.split("/");
+  const p={screen:parts[0]};
+  if(parts[1])p.id=parts[1];
+  if(parts[2])p.tab=parts[2];
+  if(["cover","home","jichuang","gallery","machine","guohui","hangkong","fighter","hero","battle","map","institute","sanxian"].indexOf(p.screen)<0)return null;
+  return p;
+}
+function syncHash(){
+  const cur=hist[hist.length-1];
+  let h="/"+cur.screen;
+  if(cur.params.id)h+="/"+cur.params.id;
+  if(cur.params.tab)h+="/"+cur.params.tab;
+  if(location.hash!=="#"+h)history.replaceState(null,"","#"+h);
+}
+function initFromHash(){
+  const p=parseHash();
+  if(p){ hist=[{screen:"cover",params:{}}]; const pr={id:p.id,tab:p.tab}; go(p.screen,pr); }
+}
+
+function catOf(screen,params){
+  if(screen==="jichuang"||screen==="gallery"||screen==="machine")return "jichuang";
+  if(screen==="guohui")return "guohui";
+  if(screen==="hangkong"||screen==="fighter"||screen==="hero"||screen==="map"||screen==="institute"||screen==="battle")return "hangkong";
+  if(screen==="sanxian")return "sanxian";
+  return null;
+}
+const CRUMB_EN={home:["Home","Four Sections"],jichuang:["Machine Tools","Home of Machine Tools"],gallery:["Machine Tools","Foundation of All Machinery"],machine:["Machine Tools","Foundation of All Machinery","Details"],guohui:["National Emblem","First Metal Emblem"],hangkong:["Aviation","Fighter Lineage"],fighter:["Aviation","Fighter Lineage","Details"],hero:["Aviation","Heroic Deeds"],battle:["Aviation","J-5 Combat Records"],map:["Aviation","Institute Network"],institute:["Aviation","Institute Network","Details"],sanxian:["Third Front","Third Front"]};
+function crumbOf(screen,params){
+  const map=LANG==="en"?CRUMB_EN:{
+    home:["首页","四大板块"],
+    jichuang:["沈阳机床","机床之乡"],
+    gallery:["沈阳机床","万械之基"],
+    machine:["沈阳机床","万械之基","详情"],
+    guohui:["金属国徽","第一枚金属国徽"],
+    hangkong:["国防航空","战机谱系"],
+    fighter:["国防航空","战机谱系","详情"],
+    hero:["国防航空","英雄事迹"],
+    battle:["国防航空","歼-5实战战绩"],
+    map:["国防航空","研究所分布"],
+    institute:["国防航空","研究所分布","详情"],
+    sanxian:["三线建设","三线建设"]
+  };
+  const arr=(LANG==="en"?CRUMB_EN:map)[screen]||[];
+  return arr.map((s,i)=>i<arr.length-1?"<span>"+s+"</span> / ":"<span class='cur'>"+s+"</span>").join("");
+}
+function renderTabs(active){
+  document.getElementById("hTabs").innerHTML=CATS.map(c=>
+    "<div class='h-tab"+(c.id===active?" active":"")+"' onclick='go(\""+c.screen+"\")'>"+pick(c,"name","nameEn")+"</div>").join("");
+}
+function renderHeader(cur){
+  const isCover=cur==="cover";
+  headerEl.classList.toggle("show",!isCover);
+  if(isCover)return;
+  const cat=catOf(cur);
+  renderTabs(cat);
+  document.getElementById("searchInput").placeholder=T("search_ph");
+  const _cn=document.querySelector(".h-search .cn"); if(_cn)_cn.textContent=LANG==="en"?"CN":"EN";
+  document.getElementById("btnBack").textContent=T("back");
+  document.getElementById("btnBack").classList.toggle("off",cur==="home");
+  document.getElementById("crumb").innerHTML=crumbOf(cur);
+}
+
+/* ================= 渲染 ================= */
+function el(type,cls,html){ return "<"+type+" class='"+cls+"'>"+(html||"")+"</"+type+">"; }
+
+const COVER_INTRO_EN="Shenyang is the cradle of New China's equipment manufacturing industry and created many milestone national firsts. These achievements are not only a vivid epitome of China's industrial development but also an important expression of a pioneering and enterprising spirit. From the first engine lathe born at Shenyang No.1 Machine Tool Works in 1953, to the first metal national emblem cast in 1951 and hung on Tiananmen; from the first jet fighter's maiden flight in 1956, to the first carrier fighter's shipboard landing in 2012 — as the Republic's eldest industrial son, Shenyang played an irreplaceable role in the development of heavy industry, its breakthroughs manifesting the struggle from nothing to something, from weak to strong.";
+function screenCover(){
+  return "<div class='screen active' id='screen-cover'>"+
+    "<div class='bgimg'></div><div class='veil'></div>"+
+    "<div class='top'><span class='logo-sy'>SY</span><span class='logo-no1'>NO.1</span><span class='logo-txt'>沈阳装备制造业</span></div>"+
+    "<div class='top-search'><span style='border:1px solid rgba(255,255,255,.45);border-radius:6px;padding:5px 14px;font-size:17px;cursor:pointer;color:#fff' onclick='toggleLang()'>"+(LANG==="en"?"CN":"EN")+"</span></div>"+
+    "<div class='center'>"+
+      "<img class='logoimg' src='"+IMG+"logo_text.png' alt='长子情怀 勇于担当'>"+
+      "<div class='title'>"+(LANG==="en"?"Shenyang Equipment Manufacturing's National Firsts":"沈阳装备制造的全国第一")+"</div>"+
+      "<div class='intro'>"+(LANG==="en"?COVER_INTRO_EN:"沈阳是新中国装备制造业的摇篮，创造了众多具有里程碑意义的「全国第一」，这些成就不仅是我国工业发展史的生动缩影，更是开拓进取精神的重要体现。"+
+      "从1953年新中国第一台普通车床在沈阳第一机床厂诞生，到1956年沈阳电缆厂研制出我国第一根电力电缆；从1958年沈阳变压器厂成功制造我国第一台大型变压器，到1960年沈阳重型机器厂生产出我国第一台大型轧钢机……"+
+      "作为共和国工业长子，沈阳在重工业发展进程中发挥了不可替代的作用，其装备制造业的突破性成果，彰显了从无到有、从弱到强的奋斗历程。")+"</div>"+
+      "<button class='btn start' onclick='go(\"home\")'>"+T("start")+"</button>"+
+    "</div>"+
+    "<div class='scrolltip'>"+T("cover_tip")+"</div>"+
+  "</div>";
+}
+function screenHome(){
+  const cards=[
+    {no:"01",t:T("hc1_t"),d:T("hc1_d"),p:T("hc1_p"),to:"jichuang"},
+    {no:"02",t:T("hc2_t"),d:T("hc2_d"),p:T("hc2_p"),to:"guohui"},
+    {no:"03",t:T("hc3_t"),d:T("hc3_d"),p:T("hc3_p"),to:"hangkong"},
+    {no:"04",t:T("hc4_t"),d:T("hc4_d"),p:T("hc4_p"),to:"sanxian"}
+  ];
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+
+    "<h1 class='big'>"+T("home_h1a")+" <span class='org'>"+T("home_h1b")+"</span></h1>"+
+    "<h2 class='sub'>"+T("home_h2")+"</h2>"+
+    "<div class='home-grid'>"+cards.map(c=>
+      "<div class='home-card card' onclick='go(\""+c.to+"\")'><span class='no'>"+c.no+"</span><span class='sweep'></span>"+
+      "<div class='ic'>"+c.no+"</div><h3>"+c.t+"</h3><p>"+c.d+"</p><p>"+c.p+"</p><div class='more'>"+T("enter_sec")+"</div></div>").join("")+
+    "</div>"+
+    "<div class='home-hero'><div class='nums'>"+
+      "<div class='num'><b>1949</b><span>"+T("hn1")+"</span></div>"+
+      "<div class='num'><b>1951</b><span>"+T("hn2")+"</span></div>"+
+      "<div class='num'><b>1956</b><span>"+T("hn3")+"</span></div>"+
+      "<div class='num'><b>2012</b><span>"+T("hn4")+"</span></div>"+
+      "<div class='num'><b>"+(LANG==="en"?"Dozens":"数十项")+"</b><span>"+T("hn5")+"</span></div>"+
+    "</div><div class='tag'>"+T("rep_eldest")+"</div></div>"+
+  "</div></div></div>";
+}
+function screenJichuang(){
+  const miles=LANG==="en"?MILES_EN:[
+    ["1949","中国第一台车床：沈阳第一机器厂（沈阳第一机床厂的前身）出产了中国第一台车床——<b>六尺皮带车床</b>。"],
+    ["1953","中国第一台普通车床：作为国家156项重点建设工程之一，沈阳第一机床厂引进前苏联机床制造与管理技术，自行研制开发出<b>C620-1</b>。"],
+    ["1964","中国第一台半自动凸轮轴车床：沈阳第一机床厂自行研制成功<b>CT8305</b>。"],
+    ["1965","中国第一台管接头镗孔机床：沈阳第一机床厂自行研制成功<b>Q1545</b>。"],
+    ["1973","中国第一台数控车床：<b>CSK6163</b>在沈阳第一机床厂研制成功，标志着中国车床领域自动化时代的到来。"],
+    ["1989","中国第一台柔性加工单元：沈阳第一机床厂引进德国海德曼公司技术，生产了中国第一台<b>柔性加工单元</b>。"]
+  ];
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+
+    "<h1 class='big'>"+T("jc_h1")+"</h1><h2 class='sub'>"+T("jc_h2")+"</h2>"+
+    "<div class='jc-hero'>"+
+      "<div class='ph'><img src='"+IMG+"jichuang_theme.jpg'><div class='ph-tag'>"+(LANG==="en"?"China Industrial Museum · Foundation of All Machinery exhibition":"中国工业博物馆 · 「万械之基」展陈")+"</div></div>"+
+      "<div class='jc-miles'>"+miles.map(m=>
+        "<div class='jc-mile' onclick='go(\"gallery\")'><span class='yr'>"+m[0]+"</span><span class='tx'>"+m[1]+"</span></div>").join("")+
+      "</div>"+
+    "</div>"+
+    "<div class='jc-foot'><button class='btn' onclick='go(\"gallery\")'>"+T("jc_btn")+"</button></div>"+
+  "</div></div><div class='hintbar'>"+T("jc_hint")+"</div></div>";
+}
+function screenGallery(){
+  const cards=MACHINES.map(m=>
+    "<div class='gal-card' onclick='go(\"machine\",{id:\""+m.id+"\"})'>"+
+      "<div class='gimg'><span class='gyr'>"+m.year+"</span><img src='"+IMG+m.img+"' alt='"+m.name+"' loading='lazy'></div>"+
+      "<div class='gtx'><b>"+pick(m,"name","nameEn")+"</b><span>"+pick(m,"sub","subEn")+" · "+pick(m,"factory","factoryEn")+"</span></div>"+
+    "</div>").join("");
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+
+    "<div class='gal-head'><h1 class='big'>"+T("gal_h1")+"</h1><span class='tag'>"+T("gal_tag")+"</span></div>"+
+    "<div class='gal-axis'><span class='a-label'>1949</span><div class='ax'></div><span class='a-label'>2001</span></div>"+
+    "<div class='gal-grid'>"+cards+"</div>"+
+    "<div class='srcnote'>"+T("gal_note")+"</div>"+
+  "</div></div><div class='hintbar'>"+T("gal_hint")+"</div></div>";
+}
+function screenMachine(params){
+  const m=MACHINES.find(x=>x.id===params.id)||MACHINES[0];
+  const idx=MACHINES.findIndex(x=>x.id===m.id)+1;
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+
+    "<div class='detail'>"+
+      "<div class='dimg'><img src='"+IMG+m.img+"' alt='"+m.name+"'>"+
+        "<div class='m-nav'>"+
+          "<div class='mn-btn' onclick='goMachine(-1)' title='"+T("prev")+"'>"+T("prev")+"</div>"+
+          "<div class='mn-info'>"+T("cnt_pre")+idx+T("cnt_mid")+MACHINES.length+T("cnt_aft")+"</div>"+
+          "<div class='mn-btn' onclick='goMachine(1)' title='"+T("next")+"'>"+T("next")+"</div>"+
+        "</div></div>"+
+      "<div class='dinfo'>"+
+        "<div class='tag'>"+m.year+" · "+T("china_first")+"</div>"+
+        "<div class='dtitle' style='margin-top:14px'>"+pick(m,"name","nameEn")+"</div>"+
+        "<div class='dsub'>"+pick(m,"sub","subEn")+"</div>"+
+        "<div class='kv'><span class='k'>"+T("kv_model")+"</span><span class='v'>"+pick(m,"sub","subEn")+"</span>"+
+        "<span class='k'>"+T("kv_time")+"</span><span class='v'>"+m.time+"</span>"+
+        "<span class='k'>"+T("kv_factory")+"</span><span class='v'>"+pick(m,"factory","factoryEn")+"</span></div>"+
+        "<div class='sec-title'>"+T("hist_sig")+"</div>"+
+        "<p class='para'>"+pick(m,"sig","sigEn")+"</p>"+
+        "<div class='srcnote'>"+(LANG==="en"?"Note: Content on this page is compiled from design materials, for study and exchange; exhibition data are subject to the official exhibition.":"注：本页内容整理自设计稿素材，供学习交流；展览数据以官方展陈为准。")+"</div>"+
+        "<div style='margin-top:34px;display:flex;gap:16px'>"+
+          "<button class='btn ghost' onclick='go(\"gallery\")'>"+T("back_gallery")+"</button>"+
+          "<button class='btn' onclick='go(\"gallery\")'>"+T("keep_explore")+"</button>"+
+        "</div>"+
+      "</div>"+
+    "</div>"+
+  "</div></div><div class='hintbar'>"+T("detail_hint")+"</div></div>";
+}
+function screenGuohui(){
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+
+    "<h1 class='big'>"+T("gh_h1")+"</h1><h2 class='sub'>"+T("gh_h2")+"</h2>"+
+    "<div class='detail' style='margin-top:30px'>"+
+      "<div class='dimg' style='flex-basis:800px'><img src='"+IMG+"guohui.png' alt='国徽'></div>"+
+      "<div class='dinfo'>"+
+        "<p class='para'>"+(LANG==="en"?"On September 20, 1950, Chairman Mao Zedong signed the order finalizing the design of the national emblem of the People's Republic of China. The emblem features the national flag, Tiananmen, a gear and ears of grain, symbolizing the Chinese people's new-democratic revolutionary struggle since the May Fourth Movement and the birth of New China under the people's democratic dictatorship led by the working class and based on the worker-peasant alliance.":"1950年9月20日，毛泽东主席签署命令，中华人民共和国国徽的设计方案最终确定。国徽的内容为国旗、天安门、齿轮和谷穗，象征中国人民自「五四」运动以来的新民主主义革命斗争和工人阶级领导的以工农联盟为基础的人民民主专政的新中国的诞生。")+"</p>"+
+        "<p class='para mt'>"+(LANG==="en"?"On May 1, 1951, New China's first metal national emblem was hung on Tiananmen Gate, a task assigned to Shenyang No.1 Machinery Factory (predecessor of Shenyang No.1 Machine Tool Works). Production had only just resumed, yet under crude conditions the workers successfully cast a high-precision emblem through innovation and effort. They brought in sand of different properties from Inner Mongolia and Dalian and mixed it to ensure a smooth surface. Through repeated trials they solved the casting problem caused by the different melting points of copper and aluminum; with no modern equipment they relied on handwork and experience. Working day and night, they fixed problems such as wheat grains that were not raised and awns that did not show, finally producing a qualified model. They judged temperature by watching the color of molten aluminum with the naked eye, stirred it with wooden rods for deoxidation and made their own iron pots in place of aluminum-melting vessels, a remarkable spirit of craftsmanship and striving.":"1951年5月1日，新中国第一枚金属国徽悬挂在天安门城楼上，这个任务交给了沈阳第一机器厂（沈阳第一机床厂前身）。当时沈阳第一机器厂刚恢复生产，在简陋的条件下，通过创新和努力，成功铸造了高精度的国徽。他们从内蒙古和大连运来不同特性的砂子混合使用，以保证国徽表面的光洁度。工人们通过反复试验，解决了铜铝合金熔点不同导致的浇铸难题；在没有现代化设备的情况下，依靠手工操作和经验，克服了重重困难。工人们日夜研究、反复实验，解决了模型图案上的麦穗粒不鼓、芒不显等问题，最终合格的国徽模型做出来了。他们用肉眼观察铝水颜色的变化来测试温度，用木棒搅拌脱氧，自制铁罐代替化铝罐，展现了极高的工匠精神和奋斗精神。")+"</p>"+
+        "<div class='sec-title'>"+T("witness")+"</div>"+
+        "<p class='para'>"+(LANG==="en"?"Wu Jiahu is a retired worker of Shenyang No.1 Machine Tool Works who took part in casting the first metal national emblem, an experience he regarded as the most glorious and unforgettable of his life. In 2012, as a technical adviser, he guided workers in copying an emblem to the same specification as the one on Tiananmen using the original process; that emblem now hangs in the exhibition hall of the China Industrial Museum.":"吴嘉祜是沈阳第一机床厂的退休职工，参与了首枚金属国徽的铸造，他将这段经历视为一生中最光荣、最难忘的事情。2012年，吴嘉祜作为技术顾问，指导工人们按照原来的工艺流程复制了一枚与天安门城楼上同等规格的国徽，这枚国徽现在悬挂在中国工业博物馆展厅内。")+"</p>"+
+        "<div class='sec-title'>"+T("gh_meaning")+"</div>"+
+        "<p class='para'>"+(LANG==="en"?"The national emblem is the symbol of the state and represents its dignity. Casting the first metal national emblem marked the completion of New China's national symbols and the elevation of its dignity, and represented the highest level of Chinese casting technology at the time. The spirit of self-reliance, independent innovation and perseverance shown by the workers became a precious spiritual legacy for later generations.":"国徽是国家的标志，代表着国家的尊严。第一枚金属国徽的铸造，标志着新中国在国家象征上的完善和尊严的提升，代表了当时中国铸造技术的最高水平。国徽的铸造过程中，工人们展现出的自力更生、自主创新、持之以恒的精神，成为了后代传承的宝贵精神财富。")+"</p>"+
+      "</div>"+
+    "</div>"+
+    "<div class='srcnote'>"+T("gh_note")+"</div>"+
+  "</div></div><div class='hintbar'>"+T("gh_hint")+"</div></div>";
+}
+function screenHangkong(){
+  const cards=FIGHTERS.map((f,i)=>
+    "<div class='fg-card' onclick='go(\"fighter\",{id:\""+f.id+"\"})'>"+
+      "<div class='fimg'><img src='"+IMG+f.img+"' alt='"+f.name+"' loading='lazy'></div>"+
+      "<div class='fbody'><div class='ft'>"+pick(f,"title","titleEn")+"</div><div class='fn'>"+ne(f.name)+" · "+(LANG==="en"?"Powered by":"配装")+" "+ee(f.engine)+"</div><div class='fe'>"+pick(f,"tag","tagEn")+"</div><div class='fgo'>"+(LANG==="en"?"View details →":"查看详情 →")+"</div></div>"+
+    "</div>").join("");
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+
+    "<h1 class='big'>"+T("hk_h1")+"</h1>"+
+    "<h2 class='sub' style='max-width:1500px;line-height:1.8'>"+T("hk_h2")+"</h2>"+
+    "<div class='fg-grid'>"+cards+
+      "<div class='fg-card' onclick='go(\"map\")'><div class='fimg' style='background:linear-gradient(135deg,#0f1115,#1a232e);display:flex;align-items:center;justify-content:center'><div style='text-align:center'><div style='width:64px;height:64px;margin:0 auto;border:2px solid #FF6C0A;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FF6C0A;font-size:28px;font-weight:800'>网</div><div style='font-size:22px;color:#fff;margin-top:10px;letter-spacing:3px'>"+(LANG==="en"?"National Institute Network":"全国研究所分布")+"</div></div></div>"+
+      "<div class='fbody'><div class='ft'>"+(LANG==="en"?"Aerodynamics · Electronics · Strength":"航空气动 · 电子 · 强度")+"</div><div class='fn'>"+(LANG==="en"?"Seven regions · centered on Shenyang":"七大区域 · 沈阳为中心")+"</div><div class='fe'>"+(LANG==="en"?"A nationwide aviation network radiating from Shenyang":"从沈阳辐射全国的航空工业布局")+"</div><div class='fgo'>"+(LANG==="en"?"View map →":"查看地图 →")+"</div></div></div>"+
+      "<div class='fg-card' onclick='go(\"hero\",{id:\"wangwei\"})'><div class='fimg' style='background:linear-gradient(135deg,#0f1115,#2a1d18);display:flex;align-items:center;justify-content:center'><div style='text-align:center'><div style='width:64px;height:64px;margin:0 auto;border:2px solid #bfbfbf;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:800'>英</div><div style='font-size:22px;color:#fff;margin-top:10px;letter-spacing:3px'>"+(LANG==="en"?"Heroic Deeds":"英雄事迹")+"</div></div></div>"+
+      "<div class='fbody'><div class='ft'>"+(LANG==="en"?"Wang Wei · Luo Yang":"王伟 · 罗阳")+"</div><div class='fn'>"+(LANG==="en"?"Sea & Sky Guardian / Reform Pioneer":"海空卫士 / 改革先锋")+"</div><div class='fe'>"+(LANG==="en"?"81192, please return · serving the nation through aviation":"81192 请返航 · 航空报国精神")+"</div><div class='fgo'>"+(LANG==="en"?"View heroes →":"查看英雄 →")+"</div></div></div>"+
+    "</div>"+
+    "<div class='srcnote'>"+T("hk_note")+"</div>"+
+  "</div></div><div class='hintbar'>"+T("hk_hint")+"</div></div>";
+}
+function screenFighter(params){
+  const f=FIGHTERS.find(x=>x.id===params.id)||FIGHTERS[0];
+  const tab=params.tab||"info";
+  const tabs=[["info",T("tab_info")],["param",T("tab_param")],["meaning",T("tab_meaning")],["hero",T("tab_hero")]];
+  const fi=FIGHTERS.indexOf(f);
+  const prevN=FIGHTERS[(fi-1+FIGHTERS.length)%FIGHTERS.length].name;
+  const nextN=FIGHTERS[(fi+1)%FIGHTERS.length].name;
+  let body="";
+  if(tab==="info"){
+    const paras=(LANG==="en"?f.infoPartsEn:(f.infoParts||[f.info])).map(p=>"<p class='para'>"+p+"</p>").join("");
+    body="<div class='f-info'>"+
+      "<div class='f-photo"+(f.detailImg?" zoom":"")+"'><img src='"+IMG+(f.detailImg||f.img)+"' alt='"+f.name+"'><div class='f-cap'>"+pick(f,"title","titleEn").replace(/<br\s*\/?>/gi," ")+"</div></div>"+
+      "<div class='f-txt'><div class='f-paras'>"+paras+"</div>"+
+      (f.engineImg?"<div class='engine-note'><b>"+T("engine_heart")+ee(f.en||f.engine)+"</b><div style='font-size:14.5px;color:#b9c6d8;margin-top:6px;line-height:1.8'>"+(LANG==="en"?f.enNoteEn:(f.enNote||""))+"</div>"+(f.engineSpec?"<div class='engine-spec'>"+f.engineSpec.map(x=>"<div class='es'><div class='k'>"+(LANG==="en"?({"引擎总长":"Length","最大外径":"Max Diameter","单具重量":"Weight","最大推力":"Max Thrust"}[x[0]]||x[0]):x[0])+"</div><div class='v'>"+x[1]+"</div></div>").join("")+"</div>":"")+"<img src='"+IMG+f.engineImg+"' style='width:100%;border-radius:8px;margin-top:12px'></div>":"<div class='engine-note'><b>"+T("engine_heart")+ee(f.en||f.engine)+"</b><div style='font-size:14.5px;color:#b9c6d8;margin-top:6px;line-height:1.8'>"+(LANG==="en"?f.enNoteEn:(f.enNote||""))+"</div></div>")+
+      "</div></div>";
+  }else if(tab==="param"){
+    body="<div class='f-param'><div class='sec-title'>"+T("tab_param")+"</div><p class='para'>"+pick(f,"params","paramsEn")+"</p>"+
+      "<div class='chart-title'>"+T("radar_t")+"</div><div class='chart-sub'>"+T("radar_sub")+"</div>"+radarSVG(f)+
+      "<div class='chart-title'>"+T("base_t")+"</div>"+baseTableHTML(f)+
+      "<div class='chart-title'>"+T("bar_t")+"</div><div class='chart-sub'>"+T("bar_sub")+"</div>"+thrustBarSVG()+
+      "</div>";
+  }else if(tab==="meaning"){
+    body="<div class='f-param'><div class='sec-title'>"+T("tab_meaning")+"</div><p class='para'>"+pick(f,"meaning","meaningEn")+"</p>"+
+      (f.battle?"<div style='margin-top:20px'><button class='btn ghost' onclick='go(\"battle\")'>"+T("view_battle")+"</button></div>":"")+
+      "</div>";
+  }else{
+    const h=HEROES[f.hero];
+    if(h){
+      body="<div class='f-info'>"+
+        (h.img?"<div class='f-photo' style='flex:0 0 330px'><img src='"+IMG+h.img+"' alt='"+h.name+"'></div>":"")+
+        "<div class='f-txt'><div class='sec-title' style='margin-top:0'>"+pick(h,"name","nameEn")+" <span style='font-size:18px;color:var(--orange);font-weight:600'>"+(h.code?("· "+h.code):"")+"</span></div>"+
+        "<div class='dsub' style='margin-bottom:14px'>"+pick(h,"title","titleEn")+"</div>"+
+        (LANG==="en"?h.parasEn:h.paras).map(p=>"<p class='para'>"+p+"</p>").join("")+
+        "<div style='margin-top:22px'><button class='btn ghost' onclick='go(\"hero\",{id:\""+h.id+"\"})'>"+T("view_full")+"</button></div>"+
+        "</div></div>";
+    }else{
+      body="<div class='f-param'><div class='sec-title'>英雄事迹</div>"+
+        "<p class='para'>"+T("hero_fallback")+"</p>"+
+        "<div style='margin-top:22px;display:flex;gap:16px;flex-wrap:wrap'><button class='btn ghost' onclick='go(\"hero\",{id:\"wangwei\"})'>"+T("hero_wangwei")+"</button><button class='btn ghost' onclick='go(\"hero\",{id:\"luoyang\"})'>"+T("hero_luoyang")+"</button></div></div>";
+    }
+  }
+  const arrows="<div class='f-arrow f-arrow-l' onclick='goFighter(-1)' title='"+T("prev_f")+ne(prevN)+"'>‹</div><div class='f-arrow f-arrow-r' onclick='goFighter(1)' title='"+T("next_f")+ne(nextN)+"'>›</div>";
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+arrows+
+    "<div style='display:flex;align-items:center;gap:26px;flex-wrap:wrap'><h1 class='big'>"+pick(f,"title","titleEn")+"</h1><span class='tag'>"+ee(f.engine)+"</span><span class='tag' style='background:rgba(0,74,158,.2);border-color:rgba(0,74,158,.6);color:#8fb6ef'>"+ne(f.name)+"</span></div>"+
+    "<div class='ftabs'>"+tabs.map(t=>"<div class='ftab"+(t[0]===tab?" active":"")+"' onclick='go(\"fighter\",{id:\""+f.id+"\",tab:\""+t[0]+"\"})'>"+t[1]+"</div>").join("")+"</div>"+
+    "<div class='fcontent'>"+body+"</div>"+
+    "<div class='f-switch'><button class='btn ghost' onclick='goFighter(-1)'>"+(LANG==="en"?"‹ Previous · ":"← 上一架 · ")+ne(prevN)+"</button><span class='cnt'>"+(LANG==="en"?"Aircraft "+(fi+1)+" of "+FIGHTERS.length:"第 "+(fi+1)+" 架 / 共 "+FIGHTERS.length+" 架")+"</span><button class='btn ghost' onclick='goFighter(1)'>"+(LANG==="en"?"Next · "+ne(nextN)+" ›":"下一架 · "+nextN+" →")+"</button></div>"+
+  "</div></div><div class='hintbar'>"+T("fighter_hint")+"</div></div>";
+}
+function screenHero(params){
+  const h=HEROES[params.id]||HEROES.wangwei;
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+
+    "<div class='detail'>"+
+      (h.img?"<div class='dimg' style='flex-basis:380px'><img src='"+IMG+h.img+"' alt='"+h.name+"'></div>":"")+
+      "<div class='dinfo'>"+
+        "<div class='tag'>"+T("hero_tag")+(h.code?h.code:(LANG==="en"?"Serving the Nation Through Aviation":"航空报国"))+"</div>"+
+        "<div class='dtitle' style='margin-top:14px'>"+pick(h,"name","nameEn")+"</div>"+
+        "<div class='dsub'>"+pick(h,"title","titleEn")+"</div>"+
+        "<div class='kv'><span class='k'>"+T("hero_model")+"</span><span class='v'>"+ne(h.fighter?h.fighter:"歼击机")+" · "+(LANG==="en"?"Powered by":"配装")+" "+ee(h.engine)+"</span></div>"+
+        (LANG==="en"?h.parasEn:h.paras).map(p=>"<p class='para mt'>"+p+"</p>").join("")+
+        "<div style='margin-top:40px;text-align:center'><span style='font-size:46px;color:#707070;letter-spacing:14px;font-weight:900'>"+T("salute")+"</span></div>"+
+        "<div style='margin-top:30px;display:flex;gap:16px'><button class='btn ghost' onclick='back()'>"+T("back")+"</button>"+
+        (h.id==="wangwei"?"<button class='btn ghost' onclick='go(\"fighter\",{id:\"j8\"})'>"+(LANG==="en"?"View J-8II Details →":"查看 歼-8Ⅱ 详情 →")+"</button>":"<button class='btn ghost' onclick='go(\"fighter\",{id:\"j15\"})'>"+(LANG==="en"?"View J-15 Details →":"查看 歼-15 详情 →")+"</button>")+"</div>"+
+      "</div>"+
+    "</div>"+
+  "</div></div></div>";
+}
+function screenBattle(){
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+
+    "<h1 class='big'>"+T("battle_h1")+"</h1><h2 class='sub'>"+T("battle_h2")+"</h2>"+
+    "<div class='battle-list'>"+(LANG==="en"?BATTLE_EN:BATTLE).map(b=>"<div class='battle-item'>"+b+"</div>").join("")+"</div>"+
+    "<div class='srcnote'>"+T("battle_note")+"</div>"+
+    "<div style='margin-top:36px'><button class='btn ghost' onclick='go(\"fighter\",{id:\"j5\"})'>"+T("battle_back")+"</button></div>"+
+  "</div></div></div>";
+}
+function screenMap(){
+  let svg="";
+  const cx=320,cy=240;
+  const ang=[-90,-35,8,45,125,170,215]; // degrees
+  const r=170;
+  const pos=REGIONS.map((rg,i)=>{const a=ang[i]*Math.PI/180;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];});
+  svg="<svg viewBox='0 0 640 480'>"+
+    "<defs><radialGradient id='core'><stop offset='0%' stop-color='#FF6C0A' stop-opacity='.5'/><stop offset='100%' stop-color='#FF6C0A' stop-opacity='0'/></radialGradient></defs>"+
+    "<circle cx='320' cy='240' r='210' fill='url(#core)'/>"+
+    REGIONS.map((rg,i)=>"<line x1='320' y1='240' x2='"+pos[i][0]+"' y2='"+pos[i][1]+"' stroke='rgba(255,108,10,.35)' stroke-width='1.5' stroke-dasharray='4 5'/>").join("")+
+    "<circle cx='320' cy='240' r='52' fill='rgba(255,108,10,.2)' stroke='#FF6C0A' stroke-width='2'/>"+
+    "<text x='320' y='236' text-anchor='middle' fill='#fff' font-size='20' font-weight='800'>"+(LANG==="en"?"Shenyang":"沈阳")+"</text>"+
+    "<text x='320' y='260' text-anchor='middle' fill='#bbb' font-size='12'>"+T("rep_eldest")+"</text>"+
+    REGIONS.map((rg,i)=>"<g onclick='selectRegion(\""+rg.id+"\")' style='cursor:pointer'>"+
+      "<circle class='map-region' id='node-"+rg.id+"' cx='"+pos[i][0]+"' cy='"+pos[i][1]+"' r='26'/>"+
+      "<text class='map-region-label' id='label-"+rg.id+"' x='"+pos[i][0]+"' y='"+(pos[i][1]+5)+"' text-anchor='middle'>"+pick(rg,"name","nameEn")+"</text></g>").join("")+
+  "</svg>";
+  const insts=INSTITUTES;
+  const regionEls=REGIONS.map(rg=>{
+    const cards=rg.insts.length?rg.insts.map(id=>{const ins=insts[id];return "<div class='ins-card card' onclick='go(\"institute\",{id:\""+id+"\"})'>"+
+      "<div class='in-city'>"+pick(ins,"city","cityEn")+"</div><div class='in-name'>"+pick(ins,"name","nameEn")+"</div><div class='in-code'>"+ins.code+"</div><div class='in-brief'>"+pick(ins,"brief","briefEn")+"</div></div>";}).join("")
+      :"<div style='grid-column:1/-1;padding:30px;text-align:center;color:var(--grey);font-size:16px;border:1px dashed var(--line2);border-radius:10px'>"+T("map_empty")+"</div>";
+    return "<div class='ins-block' id='region-"+rg.id+"' style='display:none'><div style='font-size:22px;font-weight:800;margin-top:6px'><span class='org'>"+pick(rg,"name","nameEn")+"</span>"+T("region_inst")+"</div><div class='ins-grid'>"+cards+"</div></div>";
+  }).join("");
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+
+    "<h1 class='big'>"+T("map_h1")+"</h1><h2 class='sub'>"+T("map_h2")+"</h2>"+
+    "<div class='map-wrap'><div class='map-net'>"+svg+"</div><div class='map-list'>"+regionEls+
+    "<div class='ins-block' id='region-hint'><div style='font-size:18px;color:var(--grey);line-height:2;padding:16px 4px'>"+T("map_hint")+"</div></div>"+
+    "</div></div>"+
+    "<div class='srcnote'>"+T("map_note")+"</div>"+
+  "</div></div><div class='hintbar'>"+T("map_hintbar")+"</div></div>";
+}
+function screenInstitute(params){
+  const ins=INSTITUTES[params.id]||INSTITUTES.hrb;
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+
+    "<div class='detail'>"+
+      "<div class='dinfo' style='flex:1'>"+
+        "<div class='tag'>"+rnEn(ins.region)+" · "+ins.code+"</div>"+
+        "<div class='dtitle' style='margin-top:14px'>"+pick(ins,"name","nameEn")+"</div>"+
+        "<div class='dsub'>"+pick(ins,"city","cityEn")+"</div>"+
+        "<div class='kv'><span class='k'>"+T("ins_city")+"</span><span class='v'>"+pick(ins,"city","cityEn")+"</span><span class='k'>"+T("ins_code")+"</span><span class='v'>"+ins.code+"</span><span class='k'>"+T("ins_region")+"</span><span class='v'>"+rnEn(ins.region)+"</span></div>"+
+        "<div class='sec-title'>"+T("ins_intro")+"</div><p class='para'>"+pick(ins,"full","fullEn")+"</p>"+
+        "<div class='srcnote'>"+T("ins_note")+"</div>"+
+        "<div style='margin-top:30px;display:flex;gap:16px'><button class='btn ghost' onclick='go(\"map\")'>"+T("ins_back")+"</button><button class='btn ghost' onclick='go(\"sanxian\")'>"+T("ins_sanxian")+"</button></div>"+
+      "</div>"+
+    "</div>"+
+  "</div></div></div>";
+}
+function screenSanxian(){
+  const stats=[["48",T("sx_l1")],["23304",T("sx_l2")],["29",T("sx_l3")],["121",T("sx_l4")],["526",T("sx_l5")],["13221",T("sx_l6")]];
+  return "<div class='screen active'><div class='scroll'><div class='pad'>"+
+    "<h1 class='big'>"+T("sx_h1")+"</h1><h2 class='sub'>"+T("sx_h2")+"</h2>"+
+    "<div class='sx-stats'>"+stats.map(s=>"<div class='sx-stat'><b>"+s[0]+"</b><span>"+s[1]+"</span></div>").join("")+"</div>"+
+    "<p class='para'>"+(LANG==="en"?SANXIAN_TEXT_EN:SANXIAN_TEXT)+"</p>"+
+    "<div class='srcnote'>"+T("sx_note")+"</div>"+
+    "<div class='jc-foot'><button class='btn' onclick='go(\"map\")'>"+T("sx_btn")+"</button></div>"+
+  "</div></div><div class='hintbar'>"+T("sx_hint")+"</div></div>";
+}
+
+/* ================= 搜索 ================= */
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function buildSearchIndex(){
+  const idx=[];
+  MACHINES.forEach(m=>idx.push({k:"机床",kEn:"Machine Tool",
+    t:m.year+" "+m.name+" · "+m.sub+" · "+m.factory,
+    tEn:m.year+" "+(m.nameEn||m.name)+" · "+(m.subEn||m.sub)+" · "+(m.factoryEn||m.factory),
+    go:()=>go("machine",{id:m.id})}));
+  FIGHTERS.forEach(f=>idx.push({k:"战机",kEn:"Fighter",
+    t:f.name+" "+f.title+" · 配装"+f.engine+" · "+f.tag,
+    tEn:(NAME_EN[f.name]||f.name)+" "+f.titleEn+" · "+(ENG_EN[f.en]||f.en||"")+" · "+f.tagEn,
+    go:()=>go("fighter",{id:f.id})}));
+  Object.values(HEROES).forEach(h=>idx.push({k:"英雄",kEn:"Hero",
+    t:h.name+(h.code?" "+h.code:"")+" "+h.title+" · "+h.fighter+" "+h.engine,
+    tEn:(h.nameEn||h.name)+(h.code?" "+h.code:"")+" "+h.titleEn+" · "+(NAME_EN[h.fighter]||h.fighter)+" "+(ENG_EN[h.engine]||h.engine),
+    go:()=>go("hero",{id:h.id})}));
+  Object.keys(INSTITUTES).forEach(id=>{const i=INSTITUTES[id];idx.push({k:"研究所",kEn:"Institute",
+    t:i.name+" "+i.city+" "+i.region+" "+i.code+" "+i.brief,
+    tEn:(i.nameEn||i.name)+" "+(i.cityEn||i.city)+" "+(REGN_EN[i.region]||i.region)+" "+i.code+" "+(i.briefEn||""),
+    go:()=>go("institute",{id:id})});});
+  const P=[
+    {zh:"首页 四大板块 沈阳机床 金属国徽 国防航空 三线建设",en:"Home Four Sections Machine Tools National Emblem Aviation Third Front",go:()=>go("home")},
+    {zh:"机床之乡 里程碑 六项第一",en:"Home of Machine Tools Milestones",go:()=>go("jichuang")},
+    {zh:"万械之基 十台第一 机床画廊 1949 2001",en:"Foundation of All Machinery Ten Firsts Machine Gallery 1949 2001",go:()=>go("gallery")},
+    {zh:"第一枚金属国徽 国徽 天安门 吴嘉祜 铸造",en:"First Metal National Emblem Tiananmen Casting",go:()=>go("guohui")},
+    {zh:"战机谱系 国防航空 沈阳所 歼击机",en:"Fighter Lineage Aviation Shenyang Institute fighter",go:()=>go("hangkong")},
+    {zh:"歼-5 实战战绩 战史 空战 击落",en:"J-5 Combat Records Battle History Air Battle",go:()=>go("battle")},
+    {zh:"研究所分布 地图 一所一厂 全国布局",en:"Institute Network Map One Institute One Factory",go:()=>go("map")},
+    {zh:"三线建设 铁西 援建 数据",en:"Third Front Construction Tiexi Aid Statistics",go:()=>go("sanxian")}
+  ];
+  P.forEach(p=>idx.push({k:"页面",kEn:"Page",t:p.zh,tEn:p.en,go:p.go}));
+  return idx;
+}
+const SEARCH_IDX=buildSearchIndex();
+function doSearch(q){
+  const box=document.getElementById("searchDrop");
+  if(!q.trim()){box.style.display="none";return;}
+  const tokens=q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const en=LANG==="en";
+  const tt=it=>en?(it.tEn||it.t):it.t, kk=it=>en?(it.kEn||it.k):it.k;
+  const scored=[];
+  SEARCH_IDX.forEach((it,ix)=>{
+    const t0=tt(it), hay=(t0+" "+kk(it)).toLowerCase();
+    if(tokens.every(tk=>hay.includes(tk))){
+      let sc=tokens.reduce((s,tk)=>s+(t0.toLowerCase().startsWith(tk)?3:(hay.includes(tk)?1:0)),0);
+      scored.push({it,ix,sc});
+    }
+  });
+  scored.sort((a,b)=>b.sc-a.sc);
+  const hits=scored.slice(0,9);
+  if(!hits.length){
+    box.innerHTML="<div style='padding:16px 18px;color:var(--grey);font-size:15px;line-height:2'>"+T("noresult1")+esc(q)+T("noresult2")+"<br><span style='color:#8b93a0;font-size:13px'>"+T("trywords")+"</span></div>";
+  }else{
+    box.innerHTML=hits.map(h=>{
+      let t=esc(tt(h.it));
+      tokens.forEach(tk=>{
+        const rx=new RegExp("("+tk.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi");
+        t=t.replace(rx,"<b>$1</b>");
+      });
+      return "<div class='sd-item' onclick='pickSearch(this)' data-i='"+h.ix+"'><span>"+t+"</span><span class='sd-k'>"+esc(kk(h.it))+"</span></div>";
+    }).join("");
+  }
+  box.style.display="block";
+}
+function pickSearch(el){
+  SEARCH_IDX[+el.dataset.i].go();
+  document.getElementById("searchDrop").style.display="none";
+  document.getElementById("searchInput").value="";
+}
+function selectRegion(id){
+  document.querySelectorAll(".map-region").forEach(n=>n.classList.remove("active"));
+  document.querySelectorAll(".ins-block").forEach(b=>b.style.display="none");
+  const node=document.getElementById("node-"+id); if(node)node.classList.add("active");
+  document.getElementById("region-hint").style.display="none";
+  const blk=document.getElementById("region-"+id); if(blk)blk.style.display="block";
+}
+function goMachine(dir){
+  const cur=hist[hist.length-1];
+  const id=(cur.params&&cur.params.id)||MACHINES[0].id;
+  let i=MACHINES.findIndex(m=>m.id===id);
+  if(i<0)i=0;
+  i=(i+dir+MACHINES.length)%MACHINES.length;
+  replace("machine",{id:MACHINES[i].id});
+}
+function goFighter(dir){
+  const cur=hist[hist.length-1];
+  const id=(cur.params&&cur.params.id)||FIGHTERS[0].id;
+  let i=FIGHTERS.findIndex(x=>x.id===id);
+  if(i<0)i=0;
+  i=(i+dir+FIGHTERS.length)%FIGHTERS.length;
+  const tab=(cur.params&&cur.params.tab)||"info";
+  replace("fighter",{id:FIGHTERS[i].id,tab:tab});
+}
+/* ===== 性能图表（依据 PDF 展陈稿数据，内联 SVG 离线渲染）===== */
+function radarSVG(f){
+  if(!f.radar)return "";
+  const ax=f.radar.axes, mx=f.radar.max;
+  const W=640,H=430,cx=320,cy=212,R=142;
+  const ang=i=>(-90+i*60)*Math.PI/180;
+  const pt=(i,r)=>{const a=ang(i);return [cx+r*Math.cos(a),cy+r*Math.sin(a)].map(v=>+v.toFixed(1));};
+  let grid="",ring="";
+  for(let k=1;k<=3;k++){
+    const rr=R*k/3;
+    let poly="";
+    for(let i=0;i<6;i++)poly+=pt(i,rr).join(",")+(i<5?",":"");
+    grid+='<polygon points="'+poly+'" fill="none" stroke="rgba(205,217,236,.18)" stroke-width="1"/>';
+  }
+  for(let i=0;i<6;i++)ring+='<line x1="'+cx+'" y1="'+cy+'" x2="'+pt(i,R)[0]+'" y2="'+pt(i,R)[1]+'" stroke="rgba(205,217,236,.18)" stroke-width="1"/>';
+  let dat="";
+  for(let i=0;i<6;i++){
+    const rr=Math.max(8,R*(Math.min(ax[i][2]/mx[i],1)));
+    dat+=pt(i,rr).join(",")+(i<5?",":"");
+  }
+  let labs="";
+  for(let i=0;i<6;i++){
+    const p=pt(i,R);
+    const lx=p[0]>=cx+60?cx+R+46:(p[0]<=cx-60?cx-R-46:p[0]);
+    const ly=p[1]>=cy+40?cy+R+26:(p[1]<=cy-40?cy-R-22:p[1]);
+    labs+='<text x="'+lx+'" y="'+(ly+4)+'" fill="#ff8c33" font-size="15" font-weight="700" text-anchor="middle">'+(LANG==="en"?(AX_EN[ax[i][0]]||ax[i][0]):ax[i][0])+'</text>';
+    labs+='<text x="'+lx+'" y="'+(ly+24)+'" fill="#e6edf7" font-size="13.5" text-anchor="middle">'+unitEn(ax[i][1])+'</text>';
+  }
+  return "<div class='radar-wrap'><svg viewBox='0 0 640 430' xmlns='http://www.w3.org/2000/svg'>"+
+    "<defs><linearGradient id='rdg' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#ff8c33' stop-opacity='.55'/><stop offset='1' stop-color='#ff8c33' stop-opacity='.12'/></linearGradient></defs>"+
+    grid+ring+
+    "<polygon class='data-poly' points='"+dat+"' fill='url(#rdg)' stroke='#ff8c33' stroke-width='2.2'/>"+
+    labs+
+    "<circle cx='"+cx+"' cy='"+cy+"' r='3' fill='#ff8c33'/>"+
+    "</svg></div>";
+}
+function thrustBarSVG(){
+  const d=[["WP-5",37],["WP-6",39.9],["WP-13AII",65.9],["WS-10",132],["WS-10A",135.39]];
+  const W=640,H=36*d.length+46,maxv=150;
+  let s="";
+  d.forEach((r,i)=>{
+    const y=30+i*36, w=Math.max(8,(W-160)*r[1]/maxv);
+    s+='<text x="0" y="'+(y+16)+'" fill="#cdd9ec" font-size="14.5">'+r[0]+'</text>';
+    s+='<rect x="86" y="'+(y+4)+'" width="'+(W-160)+'" height="16" rx="4" fill="rgba(255,255,255,.06)"/>';
+    s+='<rect class="bar-fill" x="86" y="'+(y+4)+'" width="'+w+'" height="16" rx="4" fill="#ff8c33" style="transform-origin:86px '+(y+12)+'px"/>';
+    s+='<text x="'+(96+w)+'" y="'+(y+17)+'" fill="#fff" font-size="13.5" font-weight="700">'+r[1]+'kN</text>';
+  });
+  return "<div class='bar-wrap'><svg viewBox='0 0 640 "+H+"' xmlns='http://www.w3.org/2000/svg'>"+s+"</svg></div>";
+}
+function baseTableHTML(f){
+  if(!f.base)return "";
+  const rows=Object.keys(f.base).map(k=>{const kk=LANG==="en"?(BASEK_EN[k]||k):k;let vv=f.base[k];if(LANG==="en")vv=BASEV_EN[vv]||vv;return "<tr><td>"+kk+"</td><td>"+vv+"</td></tr>";}).join("");
+  return "<table class='spec-table'><tbody>"+rows+"</tbody></table>";
+}
+
+const IA_NODES=[
+["封面 · 长子情怀 勇于担当","点击「开始探索」进入首页",
+ "Cover · The Eldest Son's Heart, the Courage to Take Responsibility","Click \"Start Exploring\" to enter the home page"],
+["首页 · 四大板块","沈阳机床 / 金属国徽 / 国防航空 / 三线建设",
+ "Home · Four Sections","Machine Tools / National Emblem / Aviation / Third Front"],
+["沈阳机床 → 机床之乡 → 万械之基画廊","1949-2001 十台「第一」机床 → 点击卡片查看详情（型号/时间/厂家/意义）",
+ "Machine Tools → Home of Machine Tools → Gallery","1949–2001 ten \"first\" machines → click a card for details (model / date / manufacturer / significance)"],
+["金属国徽 → 第一枚金属国徽","国徽故事 + 亲历者吴嘉祜",
+ "National Emblem → The First Metal National Emblem","Emblem story + witness Wu Jiahu"],
+["国防航空 → 战机谱系","歼-5 / 歼-6 / 歼-8Ⅱ / 歼-11 / 歼-15 / 歼-35A → 详情页四页签：相关信息 · 性能参数 · 历史意义 · 英雄事迹",
+ "Aviation → Fighter Lineage","J-5 / J-6 / J-8II / J-11 / J-15 / J-35A → detail page with four tabs: Overview · Specifications · Legacy · Heroes"],
+["英雄事迹 · 王伟（81192）· 罗阳","从战机详情「英雄事迹」页签进入",
+ "Heroic Deeds · Wang Wei (81192) · Luo Yang","Entered from the Heroes tab of a fighter's detail page"],
+["歼-5 实战战绩","歼-5 页面「历史意义」页签 → 查看战史",
+ "J-5 Combat Records","From the Legacy tab of the J-5 page to view combat history"],
+["研究所分布 · 七大区域","沈阳为中心辐射全国 → 点击区域查看研究所 → 点击研究所查看详情",
+ "Institute Network · Seven Regions","Radiating nationwide from Shenyang → click a region for institutes → click an institute for details"],
+["三线建设","数据看板 → 开始探索 → 研究所分布",
+ "Third Front Construction","Data dashboard → Explore → Institute Network"]];
+function renderIaPanel(){
+  const t=document.getElementById("iaTitle"); if(!t)return;
+  t.textContent=T("ia_title");
+  document.getElementById("iaSub").textContent=T("ia_sub");
+  document.getElementById("iaNote").textContent=T("ia_note");
+  document.getElementById("iaTree").innerHTML=IA_NODES.map(n=>{
+    const a=LANG==="en"?n[2]:n[0], b=LANG==="en"?n[3]:n[1];
+    return "<div class='ia-node'><div class='n'>"+a+"</div><div class='c'>"+b+"</div></div>";
+  }).join("");
+}
+function toggleLang(){
+  LANG=LANG==="en"?"cn":"en";
+  localStorage.setItem("ida_lang",LANG);
+  render();
+}
+/* ================= 主流程 ================= */
+/* ================= V6 动效系统 ================= */
+const RM=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function countUp(el){
+  const b=el.querySelector("b"); if(!b)return;
+  const target=parseInt(b.textContent.replace(/[^0-9]/g,""),10);
+  if(isNaN(target)||target<=1)return;
+  const dur=1500,t0=performance.now();
+  function step(t){
+    const p=Math.min((t-t0)/dur,1), e=1-Math.pow(1-p,3);
+    b.textContent=Math.round(target*e).toLocaleString("en-US");
+    if(p<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function initMotion(){
+  const cards=document.querySelectorAll(
+    ".home-card,.gt-card,.fg-card,.battle-item,.ins-card,.sx-stat,.mnode,.hero-mini");
+  cards.forEach(el=>el.classList.add("rv"));
+  const targets=document.querySelectorAll(".rv,.radar-wrap,.bar-wrap");
+  if(RM){
+    targets.forEach(el=>{el.classList.add("in");el.classList.add("go");});
+    return;
+  }
+  const io=new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(!en.isIntersecting)return;
+      const el=en.target;
+      if(el.classList.contains("rv"))el.classList.add("in");
+      if(el.classList.contains("radar-wrap")||el.classList.contains("bar-wrap"))el.classList.add("go");
+      if(el.classList.contains("sx-stat"))countUp(el);
+      io.unobserve(el);
+    });
+  },{threshold:.12});
+  targets.forEach(el=>io.observe(el));
+  // 兜底：3 秒后任何未揭示的卡片强制显现，防止内容不可见
+  setTimeout(()=>{document.querySelectorAll(".rv:not(.in)").forEach(el=>el.classList.add("in"));
+    document.querySelectorAll(".radar-wrap:not(.go),.bar-wrap:not(.go)").forEach(el=>el.classList.add("go"));},3000);
+}
+function initPreloader(){
+  const pl=document.getElementById("preloader");
+  function coverGo(){const c=document.getElementById("screen-cover");if(c)c.classList.add("go");}
+  function finish(){
+    coverGo();
+    if(!pl)return;
+    if(RM){pl.remove();return;}
+    pl.style.transition="opacity .5s";pl.style.opacity="0";
+    setTimeout(()=>pl.remove(),520);
+  }
+  if(RM){finish();return;}
+  const bar=document.getElementById("plBar");
+  const t0=performance.now(),DUR=2200;
+  function step(t){
+    const p=Math.min((t-t0)/DUR,1);
+    if(bar)bar.style.width=(p*100)+"%";
+    if(p<1)requestAnimationFrame(step);else finish();
+  }
+  requestAnimationFrame(step);
+  const skip=document.getElementById("plSkip");
+  if(skip)skip.onclick=()=>{if(bar)bar.style.width="100%";finish();};
+}
+function render(){
+  const cur=hist[hist.length-1];
+  syncHash();
+  let html="";
+  if(cur.screen==="cover")html=screenCover();
+  else if(cur.screen==="home")html=screenHome();
+  else if(cur.screen==="jichuang")html=screenJichuang();
+  else if(cur.screen==="gallery")html=screenGallery();
+  else if(cur.screen==="machine")html=screenMachine(cur.params);
+  else if(cur.screen==="guohui")html=screenGuohui();
+  else if(cur.screen==="hangkong")html=screenHangkong();
+  else if(cur.screen==="fighter")html=screenFighter(cur.params);
+  else if(cur.screen==="hero")html=screenHero(cur.params);
+  else if(cur.screen==="battle")html=screenBattle();
+  else if(cur.screen==="map")html=screenMap();
+  else if(cur.screen==="institute")html=screenInstitute(cur.params);
+  else if(cur.screen==="sanxian")html=screenSanxian();
+  screenEl.innerHTML=html;
+  renderHeader(cur.screen);
+  renderIaPanel();
+  const _ia=document.getElementById("btnIa"); if(_ia)_ia.innerHTML=T("ia_nav");
+  const _fs=document.getElementById("btnFull"); if(_fs)_fs.textContent=T("fs");
+  initMotion();
+}
+document.getElementById("btnBack").onclick=()=>{ if(hist.length>1)back(); else go("home"); };
+document.getElementById("btnIa").onclick=()=>document.getElementById("iaPanel").classList.add("open");
+document.getElementById("iaClose").onclick=()=>document.getElementById("iaPanel").classList.remove("open");
+document.getElementById("btnFull").onclick=()=>{ if(document.fullscreenElement)document.exitFullscreen(); else document.documentElement.requestFullscreen(); };
+document.getElementById("searchInput").addEventListener("input",e=>doSearch(e.target.value));
+document.getElementById("searchInput").addEventListener("keydown",e=>{ if(e.key==="Enter"){ const first=document.querySelector("#searchDrop .sd-item"); if(first)pickSearch(first); } });
+document.addEventListener("click",e=>{ if(!e.target.closest("#searchDrop")&&!e.target.closest("#searchInput"))document.getElementById("searchDrop").style.display="none"; });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ if(document.getElementById("iaPanel").classList.contains("open"))document.getElementById("iaPanel").classList.remove("open"); else back(); return; }
+  if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
+    const cur=hist[hist.length-1];
+    if(cur.screen==="machine"){ e.preventDefault(); goMachine(e.key==="ArrowLeft"?-1:1); }
+    else if(cur.screen==="fighter"){ e.preventDefault(); goFighter(e.key==="ArrowLeft"?-1:1); }
+  }
+});
+window.addEventListener("hashchange",initFromHash);
+function tick(){ const d=new Date(); const p=n=>String(n).padStart(2,"0"); document.getElementById("clock").textContent=p(d.getHours())+":"+p(d.getMinutes()); }
+setInterval(tick,1000); tick();
+
+/* 画布缩放 */
+function resize(){
+  const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+  const st=document.getElementById("stage");
+  st.style.transform="scale("+s+")";
+  st.style.transformOrigin="top left";
+}
+window.addEventListener("resize",resize); resize();
+initFromHash();
+render();
+initPreloader();
+</script>
+</body>
+</html>
