@@ -369,10 +369,6 @@ h2.sub{font-size:24px;color:var(--grey);font-weight:400;margin-top:10px;}
   </div>
   <div id="screen"></div>
   <div id="searchDrop"></div>
-  <div class="float-btn">
-    <div class="fb" id="btnIa" title="原型信息架构">原型<br>导航</div>
-    <div class="fb" id="btnFull" title="全屏">全屏</div>
-  </div>
   <div id="iaPanel">
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <h3 id="iaTitle"></h3>
@@ -1363,6 +1359,9 @@ function render(){
   else if(cur.screen==="institute")html=screenInstitute(cur.params);
   else if(cur.screen==="sanxian")html=screenSanxian();
   screenEl.innerHTML=html;
+  if(cur.screen==="cover"&&!document.getElementById("preloader")){
+    const _cov=document.getElementById("screen-cover"); if(_cov)_cov.classList.add("go");
+  }
   renderHeader(cur.screen);
   renderIaPanel();
   const _ia=document.getElementById("btnIa"); if(_ia)_ia.innerHTML=T("ia_nav");
@@ -1370,9 +1369,7 @@ function render(){
   initMotion();
 }
 document.getElementById("btnBack").onclick=()=>{ if(hist.length>1)back(); else go("home"); };
-document.getElementById("btnIa").onclick=()=>document.getElementById("iaPanel").classList.add("open");
 document.getElementById("iaClose").onclick=()=>document.getElementById("iaPanel").classList.remove("open");
-document.getElementById("btnFull").onclick=()=>{ if(document.fullscreenElement)document.exitFullscreen(); else document.documentElement.requestFullscreen(); };
 document.getElementById("searchInput").addEventListener("input",e=>doSearch(e.target.value));
 document.getElementById("searchInput").addEventListener("keydown",e=>{ if(e.key==="Enter"){ const first=document.querySelector("#searchDrop .sd-item"); if(first)pickSearch(first); } });
 document.addEventListener("click",e=>{ if(!e.target.closest("#searchDrop")&&!e.target.closest("#searchInput"))document.getElementById("searchDrop").style.display="none"; });
